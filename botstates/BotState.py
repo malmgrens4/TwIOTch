@@ -3,7 +3,7 @@ from abc import abstractmethod
 from botstates.Context import Context
 
 
-class State(ABC):
+class BotState(ABC):
 
     @property
     def context(self) -> Context:
