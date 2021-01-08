@@ -16,3 +16,7 @@ class BotState(ABC):
     @abstractmethod
     def handle_event_message(self, ctx) -> None:
         pass
+
+    @abstractmethod
+    def handle_join(self, ctx) -> None:
+        pass

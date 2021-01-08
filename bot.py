@@ -1,12 +1,21 @@
 # bot.py
 import os  # for importing env vars for the bot to use
+import configparser
+import logging.config
 from phue import Bridge
-
 from twitchio.ext import commands
 from toolbox.toolbox import get_phuelight
-from botstates.Context import Context
+from botstates.Context import Context as BotStateContext
+from twitchio.dataclasses import Context
 from botstates.Default import DefaultBot
 from botstates.NumberCounter import NumberCounter
+from twitchio import errors
+
+config = configparser.ConfigParser()
+config.read('config.ini')
+
+logging.config.fileConfig('config.ini')
+log = logging.getLogger(__name__)
 
 bot = commands.Bot(
     # set up the bot
@@ -20,7 +29,7 @@ bot = commands.Bot(
 
 # we need a game context with
 # teams (all twitch chat members that opt in)
-botState = Context(DefaultBot())
+botState = BotStateContext(DefaultBot())
 
 @bot.event
 async def event_message(ctx):
@@ -38,6 +47,8 @@ async def event_message(ctx):
     # Let's start with the number counter to see how this will look
 
 
+
+
 @bot.event
 async def event_ready():
     'Called once when the bot goes online.'
@@ -46,17 +57,21 @@ async def event_ready():
     await ws.send_privmsg(os.environ['CHANNEL'], f"/me has landed!")
 
 
+@bot.command(name='join')
+async def join(ctx: Context):
+    """User (Sender) is joining the current event. Ignore if no current game."""
+    botState.handle_join
+
+
 @bot.command(name='start_number_game')
-async def start_number_game(ctx):
+async def start_number_game(ctx: Context):
     """Starts a game where teams compete to list every number between 1 and the target number"""
     # assumes args are (number of teams) (target number)
     # update the game context
+    # check if user is authorized
     args = ctx.content.split()[1:]
     num_teams = int(args[0]) or 2
     target_number = args[1]
-    # TODO get all current members and randomly assign to team
-    teams = [[] for _ in num_teams]
-
     # create the teams here and pass is to the Number Counter
     botState.transition_to(NumberCounter(teams, target_number))
 
