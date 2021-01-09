@@ -1,6 +1,7 @@
-from botstates.BotState import BotState
 from twitchio.dataclasses import Context
-from botstates.Default import DefaultBot
+
+from . import BotState
+from . import Default
 
 class NumberCounter(BotState):
 
@@ -11,7 +12,7 @@ class NumberCounter(BotState):
         num_teams: number of teams
         target_number: the value that defines the range users must count to
         """
-        self.teams: dict[str, int] = {}
+        self.teams: dict[int, int] = {}
         if num_teams <= 1:
             num_teams = 2
         self.num_teams = num_teams
@@ -25,6 +26,10 @@ class NumberCounter(BotState):
         #TODO start a timer to block joins
 
     def handle_join(self, ctx: Context) -> None:
+        if ctx.author.id in self.teams:
+            # User already on a team
+            return
+
         all_teams = self.teams.values()
         team_counts: dict[int, int] = {}
         for team_id in all_teams:
@@ -39,7 +44,7 @@ class NumberCounter(BotState):
 
         #TODO diff between clean_content, content, raw_data, etc.
         user_input_number = int(ctx.message.clean_content)
-        if 0 < user_input_number && user_input_number < self.target_number:
+        if 0 < user_input_number and user_input_number < self.target_number:
             if user_input_number in self.team_numbers[team_id]:
                 # check for win condition
                 if len(self.team_numbers[team_id]) == self.team_numbers:
