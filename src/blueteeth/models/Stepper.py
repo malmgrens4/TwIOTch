@@ -1,4 +1,4 @@
-from models.ESP32BluetoothTool import ESP32BluetoothTool
+from src.blueteeth.models.ESP32BluetoothTool import ESP32BluetoothTool
 
 
 class Stepper(ESP32BluetoothTool):

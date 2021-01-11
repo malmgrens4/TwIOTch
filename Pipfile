@@ -12,6 +12,8 @@ pybluez = "*"
 phue = "*"
 webcolors = "*"
 twitchio = "*"
+pytest-mock = "*"
+sqlalchemy = "*"
 
 [requires]
 python_version = "3.7"

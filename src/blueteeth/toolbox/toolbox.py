@@ -1,5 +1,6 @@
-from models.Stepper import Stepper
-from models.PhueLight import PhueLight
+from src.blueteeth.models.Stepper import Stepper
+from src.blueteeth.models import PhueLight
+
 dino_stepper_mac = 'Pull from config file'
 cat_stepper_mac = 'None'
 

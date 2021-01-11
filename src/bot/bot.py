@@ -2,19 +2,18 @@
 import os  # for importing env vars for the bot to use
 import configparser
 import logging.config
-from phue import Bridge
 from twitchio.ext import commands
-from toolbox.toolbox import get_phuelight
-from botstates.Context import Context as BotStateContext
+
+from src.bot.botstates.DefaultBot import DefaultBot
+# from src.blueteeth.toolbox.toolbox import get_phuelight
+from src.bot.botstates.Context import Context as BotStateContext
 from twitchio.dataclasses import Context
-from botstates.Default import DefaultBot
-from botstates.NumberCounter import NumberCounter
-from twitchio import errors
+from src.bot.botstates import NumberCounterBot
+
 
 config = configparser.ConfigParser()
 config.read('config.ini')
 
-logging.config.fileConfig('config.ini')
 log = logging.getLogger(__name__)
 
 bot = commands.Bot(
@@ -26,10 +25,10 @@ bot = commands.Bot(
     initial_channels=[os.environ['CHANNEL']]
 )
 
-
 # we need a game context with
 # teams (all twitch chat members that opt in)
 botState = BotStateContext(DefaultBot())
+
 
 @bot.event
 async def event_message(ctx):
@@ -47,20 +46,18 @@ async def event_message(ctx):
     # Let's start with the number counter to see how this will look
 
 
-
-
 @bot.event
 async def event_ready():
-    'Called once when the bot goes online.'
+    """Called once when the bot goes online."""
     print(f"{os.environ['BOT_NICK']} is online!")
     ws = bot._ws  # this is only needed to send messages within event_ready
-    await ws.send_privmsg(os.environ['CHANNEL'], f"/me has landed!")
+    await ws.send_privmsg(os.environ['CHANNEL'], f"/me has arrived.")
 
 
 @bot.command(name='join')
 async def join(ctx: Context):
-    """User (Sender) is joining the current event. Ignore if no current game."""
-    botState.handle_join
+    """User (Sender) is joining the current event. Default state ignores if no current game."""
+    botState.handle_join(ctx)
 
 
 @bot.command(name='start_number_game')
@@ -70,14 +67,17 @@ async def start_number_game(ctx: Context):
     # update the game context
     # check if user is authorized
     args = ctx.content.split()[1:]
-    num_teams = int(args[0]) or 2
-    target_number = args[1]
-    # create the teams here and pass is to the Number Counter
-    botState.transition_to(NumberCounter(teams, target_number))
+    num_teams = 2
+    if len(args) == 2:
+        num_teams = int(args[1])
 
-    # send message declaring start of game
+    target_number = int(args[0])
+    botState.transition_to(NumberCounterBot(num_teams, target_number))
+    ctx.send("Number game started with %s teams. First to count to %s wins!" % (num_teams, target_number))
 
 
+# TODO need a better way to do arg parsing so every command doesn't
+# look like this
 @bot.command(name='light')
 async def light(ctx):
     """light"""
@@ -95,7 +95,7 @@ async def light(ctx):
             phueLight.disco_light()
             return
         if len(args) > 1:
-            #allow users to specify index
+            # allow users to specify index
             for i in range(1, len(args)):
                 index = int(args[i]) - 1
                 if index < len(phueLight.bridge.lights):
@@ -105,6 +105,7 @@ async def light(ctx):
         phueLight.set_light(color_name, indices)
     except:
         await ctx.send('Try a different color.')
+
 
 if __name__ == '__main__':
     bot.run()

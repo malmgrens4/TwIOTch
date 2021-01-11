@@ -1,6 +1,7 @@
 from abc import ABC
 from abc import abstractmethod
-from botstates.Context import Context
+
+from src.bot.botstates import Context
 
 
 class BotState(ABC):

@@ -5,7 +5,7 @@ from random import random
 from webcolors import name_to_rgb
 import colorsys
 
-from models.ModelUtils import translate
+from src.blueteeth.models.ModelUtils import translate
 
 
 class PhueLight:

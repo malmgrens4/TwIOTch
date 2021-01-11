@@ -1,4 +1,8 @@
-from botstates.BotState import BotState
+import logging
+
+from src.bot.botstates import BotState
+
+log = logging.getLogger(__name__)
 
 
 class Context:
@@ -9,7 +13,7 @@ class Context:
         self.transition_to(state)
 
     def transition_to(self, state: BotState):
-        print(f"Context: Transition to {type(state).__name__}")
+        log.debug(f"Context: Transition to {type(state).__name__}")
         self._state = state
         self._state.context = self
 
