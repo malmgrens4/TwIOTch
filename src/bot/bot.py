@@ -16,6 +16,10 @@ config.read('config.ini')
 
 log = logging.getLogger(__name__)
 
+# we need a game context with
+# teams (all twitch chat members that opt in)
+botState = BotStateContext(DefaultBot())
+
 bot = commands.Bot(
     # set up the bot
     irc_token=os.environ['TMI_TOKEN'],
@@ -25,9 +29,7 @@ bot = commands.Bot(
     initial_channels=[os.environ['CHANNEL']]
 )
 
-# we need a game context with
-# teams (all twitch chat members that opt in)
-botState = BotStateContext(DefaultBot())
+
 
 
 @bot.event
