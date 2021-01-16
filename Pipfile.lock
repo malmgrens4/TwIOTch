@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "d98bda516b2fd1c8d4d785d4f72f9ced935ad0378b9653d0a1b746b4c6475de9"
+            "sha256": "2977b01716a456be5ee23719974e0ab9f31cbc3cc1f0e1475cbb8ee2d9c9b23c"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -66,6 +66,16 @@
             ],
             "markers": "python_full_version >= '3.5.3'",
             "version": "==3.0.1"
+        },
+        "asyncio": {
+            "hashes": [
+                "sha256:83360ff8bc97980e4ff25c964c7bd3923d333d177aa4f7fb736b019f26c7cb41",
+                "sha256:b62c9157d36187eca799c378e572c969f0da87cd5fc42ca372d92cdb06e7e1de",
+                "sha256:c46a87b48213d7464f22d9a497b9eef8c1928b68320a2fa94240f969f6fec08c",
+                "sha256:c4d18b22701821de07bd6aea8b53d21449ec0ec5680645e5317062ea21817d2d"
+            ],
+            "index": "pypi",
+            "version": "==3.4.3"
         },
         "atomicwrites": {
             "hashes": [
@@ -236,11 +246,11 @@
         },
         "pytest-mock": {
             "hashes": [
-                "sha256:4992db789175540d40a193bc60e987b1e69f1a989adad525a44e581c82149b14",
-                "sha256:f9d77233b3af6c71cec6a8b8b5e9e9a2effd1bb6ff56e9ace72541ff6843ac81"
+                "sha256:379b391cfad22422ea2e252bdfc008edd08509029bcde3c25b2c0bd741e0424e",
+                "sha256:a1e2aba6af9560d313c642dae7e00a2a12b022b80301d9d7fc8ec6858e1dd9fc"
             ],
             "index": "pypi",
-            "version": "==3.5.0"
+            "version": "==3.5.1"
         },
         "sqlalchemy": {
             "hashes": [
@@ -296,11 +306,11 @@
         },
         "twitchio": {
             "hashes": [
-                "sha256:058c743847375db47851794155091896dcdb91cf5ca95cf5031856281c62ddf3",
-                "sha256:903dda3867b7377132a6d8d16caae8898170908309e5ddb245ae6b65b48157d3"
+                "sha256:03d8e8bc4a70df542374c0f7e4c015303a68754f1b5b744ecf10c7d7b0be89b5",
+                "sha256:a4a4bdf767f11dac540f3349de61e12bc3820295c0137d8938282874605863fd"
             ],
             "index": "pypi",
-            "version": "==1.2.0"
+            "version": "==1.2.1"
         },
         "typing-extensions": {
             "hashes": [

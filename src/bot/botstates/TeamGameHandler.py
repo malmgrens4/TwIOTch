@@ -1,3 +1,5 @@
+import asyncio
+
 from twitchio.dataclasses import Context
 
 
@@ -14,13 +16,16 @@ class TeamGameHandler:
             num_teams = 2
         self.num_teams = num_teams
 
-
-
         if target_number <= 0:
             target_number = 1
         self.target_number = target_number
 
         self.teams: dict[int, int] = {}
+
+        # allow x amount of seconds for users to join
+        # before game start
+        async def schedule_join():
+
 
     def handle_join(self, ctx: Context) -> None:
         if ctx.author.id in self.teams:

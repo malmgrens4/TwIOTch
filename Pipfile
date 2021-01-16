@@ -14,6 +14,7 @@ webcolors = "*"
 twitchio = "*"
 pytest-mock = "*"
 sqlalchemy = "*"
+asyncio = "*"
 
 [requires]
 python_version = "3.7"
