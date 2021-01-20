@@ -1,38 +1,66 @@
-from twitchio.dataclasses import Context
+from __future__ import annotations
+from twitchio.dataclasses import Message
 
 import logging
-
+from typing import TYPE_CHECKING
 from src.bot.botstates.BotState import BotState
 from src.bot.botstates.DefaultBot import DefaultBot
 from src.bot.botstates.TeamGameHandler import TeamGameHandler
 
+from src.bot.gameobservers.Subject import Subject
+
+if TYPE_CHECKING:
+    from src.bot.gameobservers.Observer import Observer
+
 log = logging.getLogger(__name__)
 
 
-class NumberCounterBot(TeamGameHandler, BotState):
+class NumberCounterBot(TeamGameHandler, BotState, Subject):
 
     def __init__(self, target_number: int, num_teams: int):
         super().__init__(target_number=target_number, num_teams=num_teams)
         self.team_numbers = [set() for _ in range(self.num_teams)]
+        self.won = False
+        self.observers = []
+        self.msg = None
 
-    def handle_join(self, ctx: Context) -> None:
-        super().handle_join(ctx)
+    def attach(self, observer: Observer) -> None:
+        self.observers.append(observer)
 
-    def handle_event_message(self, ctx: Context) -> None:
+    def detach(self, observer: Observer) -> None:
+        self.observers.remove(observer)
 
-        team_id = self.teams.get(ctx.author.id)
+    async def notify(self) -> None:
+        for observer in self.observers:
+            await observer.update(self)
+
+    async def handle_join(self, msg: Message) -> None:
+        self.msg = msg
+        await super().handle_join(msg)
+        await self.notify()
+
+    async def handle_event_message(self, msg: Message) -> None:
+        self.msg = msg
+
+        if not self._game_started:
+            return
+
+        team_id = self.teams.get(msg.author.id)
         if team_id is None:
             return
 
-        # TODO diff between clean_content, content, raw_data, etc.
-        user_input_number = int(ctx.message.clean_content)
+        user_input_number = int(msg.content)
         if 0 < user_input_number <= self.target_number:
             if user_input_number not in self.team_numbers[team_id]:
                 self.team_numbers[team_id].add(user_input_number)
                 # check for win condition
                 if len(self.team_numbers[team_id]) == self.target_number:
-                    self.win(team_id, ctx)
+                    await self.win(team_id)
+                    return
+        await self.notify()
 
-    def win(self, winning_team_id: int, ctx: Context) -> None:
-        ctx.send("""Team %s wins!""" % winning_team_id)
+    async def win(self, winning_team_id: int) -> None:
+        self.won = True
+        self.winning_team_id = winning_team_id
         self.context.transition_to(DefaultBot())
+        await self.notify()

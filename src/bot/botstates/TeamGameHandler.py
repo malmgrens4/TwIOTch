@@ -1,6 +1,9 @@
 import asyncio
 
-from twitchio.dataclasses import Context
+from collections.abc import Callable
+from typing import Dict
+
+from twitchio.dataclasses import Message
 
 
 class TeamGameHandler:
@@ -20,27 +23,38 @@ class TeamGameHandler:
             target_number = 1
         self.target_number = target_number
 
-        self.teams: dict[int, int] = {}
+        self.teams: Dict[int, int] = {}
+        self.winning_team_id = None
+        self._game_started = False
 
-        # allow x amount of seconds for users to join
-        # before game start
-        async def schedule_join():
+    def get_team_member_map(self):
+        reverse_dict = {}
+        for k, v in self.teams.items():
+            reverse_dict.setdefault(v, []).append(k)
+        return reverse_dict
 
+    def game_start(self):
+        self._game_started = True
 
-    def handle_join(self, ctx: Context) -> None:
-        if ctx.author.id in self.teams:
+    async def handle_join(self, msg: Message) -> None:
+        if self._game_started:
+            return
+
+        if msg.author.id in self.teams:
             # User already on a team
             return
 
         all_teams = self.teams.values()
 
         if len(all_teams) < self.num_teams:
-            self.teams[ctx.author.id] = len(all_teams)
+            self.teams[msg.author.id] = len(all_teams)
             return
 
-        team_counts: dict[int, int] = {}
+        team_counts: Dict[int, int] = {}
         for team_id in all_teams:
             team_counts[team_id] = team_counts.setdefault(team_id, 0) + 1
 
         min_member_team_id = min(team_counts, key=team_counts.get)
-        self.teams[ctx.author.id] = min_member_team_id
+        self.teams[msg.author.id] = min_member_team_id
+
+

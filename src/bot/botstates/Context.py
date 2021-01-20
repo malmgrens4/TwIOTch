@@ -17,8 +17,8 @@ class Context:
         self._state = state
         self._state.context = self
 
-    def handle_event_message(self, ctx):
-        self._state.handle_event_message(ctx)
+    async def handle_event_message(self, ctx):
+        await self._state.handle_event_message(ctx)
 
-    def handle_join(self, ctx):
-        self._state.handle_join(ctx)
+    async def handle_join(self, ctx):
+        await self._state.handle_join(ctx)

@@ -15,6 +15,7 @@ twitchio = "*"
 pytest-mock = "*"
 sqlalchemy = "*"
 asyncio = "*"
+typing-extensions = "*"
 
 [requires]
-python_version = "3.7"
+python_version = "3.9"
