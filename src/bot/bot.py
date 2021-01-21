@@ -5,7 +5,7 @@ import asyncio
 import configparser
 import logging.config
 from twitchio.ext import commands
-from sqlalchemy import  insert
+from sqlalchemy import insert
 from src.bot.botstates.DefaultBot import DefaultBot
 # from src.blueteeth.toolbox.toolbox import get_phuelight
 from src.bot.botstates.Context import Context as BotStateContext
@@ -32,7 +32,6 @@ bot = commands.Bot(
     prefix=os.environ['BOT_PREFIX'],
     initial_channels=[os.environ['CHANNEL']]
 )
-
 
 @bot.event
 async def event_message(ctx: Message):
@@ -70,9 +69,9 @@ async def join_game(msg: Message):
 @bot.command(name='start_number_game')
 async def start_number_game(msg: Message):
     """Starts a game where teams compete to list every number between 1 and the target number"""
-    # assumes args are (number of teams) (target number)
-    # update the game context
-    # check if user is authorized
+    if not msg.author.is_mod:
+        return
+
     args = msg.content.split()[1:]
     num_teams = 2
     if len(args) == 2:

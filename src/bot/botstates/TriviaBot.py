@@ -1,5 +1,3 @@
-import asyncio
-
 from twitchio.dataclasses import Message
 from typing import Dict
 
@@ -21,10 +19,10 @@ class TriviaBot(BotState, TeamGameHandler):
         """{team_id: {user_id: answer}}"""
         self.team_answers = [{} for _ in range(self.num_teams)]
 
-    def handle_join(self, ctx) -> None:
-        super().handle_join(ctx)
+    async def handle_join(self, msg: Message) -> None:
+        super().handle_join(msg)
 
-    def handle_event_message(self, msg: Message) -> None:
+    async def handle_event_message(self, msg: Message) -> None:
         team_id = self.teams.get(msg.author.id)
         if team_id is None:
             return
@@ -32,11 +30,11 @@ class TriviaBot(BotState, TeamGameHandler):
         if msg.author.id in self.team_answers[team_id]:
             return
 
-        user_input = msg.message.clean_content
+        user_input = msg.content
         if user_input in self.options:
             self.team_answers[team_id][msg.author.id] = user_input
 
-    def get_talley(self):
+    async def get_talley(self):
         """
         :return: Dict {team_id: percentage_right (float)}
         """
