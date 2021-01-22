@@ -66,7 +66,7 @@ class TriviaBot(TeamGameHandler, BotState, Subject):
         if user_input in self.options:
             self.team_answers[team_id][msg.author.id] = user_input
 
-            # every user has answered so end the game
+            # every user that joined has answered so end the game
             if sum([len(answers.values()) for answers in self.team_answers]) == len(self.teams):
                 await self.end_game()
                 return
@@ -98,6 +98,8 @@ class TriviaBot(TeamGameHandler, BotState, Subject):
         """
         team_weights = self.get_tally()
         winning_team_ids = [i for i, team_weight in enumerate(team_weights) if team_weight == max(team_weights)]
+        if max(team_weights) == 0:
+            winning_team_ids = []
         await self.win(winning_team_ids)
 
     async def win(self, winning_team_ids: int):
