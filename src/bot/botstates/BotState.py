@@ -15,9 +15,9 @@ class BotState(ABC):
         self._context = context
 
     @abstractmethod
-    def handle_event_message(self, ctx) -> None:
+    async def handle_event_message(self, ctx) -> None:
         pass
 
     @abstractmethod
-    def handle_join(self, ctx) -> None:
+    async def handle_join(self, ctx) -> None:
         pass

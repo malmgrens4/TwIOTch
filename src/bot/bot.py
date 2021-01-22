@@ -16,6 +16,8 @@ from src.bot.botstates.NumberCounterBot import NumberCounterBot
 from src.bot.botstates.TriviaBot import TriviaBot
 from src.bot.gameobservers.NumberGameChatObserver import NumberGameChatObserver
 from src.bot.gameobservers.NumberGameScoreObserver import NumberGameScoreObserver
+from src.bot.gameobservers.TriviaChatObserver import TriviaChatObserver
+from src.bot.gameobservers.TriviaAnswerTimerObserver import TriviaAnswerTimerObserver
 from src.bot.db.schema import session_scope, User, TriviaQuestion
 
 config = configparser.ConfigParser()
@@ -91,7 +93,7 @@ async def start_number_game(msg: Message):
     await msg.channel.send("Type !join_game to join a team for number showdown!")
     # sleep for 30 while players join
     await asyncio.sleep(10)
-    number_counter_bot.game_start()
+    await number_counter_bot.game_start()
     await msg.channel.send("Number game started with %s teams. First to count to %s wins!" % (num_teams, target_number))
 
 
@@ -113,39 +115,34 @@ async def start_trivia(msg: Message):
 
     with session_scope() as session:
         if category:
-            question_query = session.query(TriviaQuestion)
-        else:
             question_query = session.query(TriviaQuestion).filter(TriviaQuestion.category == category)
+        else:
+            question_query = session.query(TriviaQuestion)
 
         question = question_query.order_by(func.random()).first()
         options = question.options
 
-    options_map = [{chr(i): option.option} for i, option in enumerate(options)]
-    correct_responses = [chr(i) for i, option in enumerate(options) if option.is_correct]
+        options_map = {}
+        for i, option in enumerate(options):
+            options_map[chr(i + 97)] = option.option
 
-    trivia_bot = TriviaBot(num_teams=num_teams,
-                           question=question.question,
-                           options=options_map,
-                           correct_responses=correct_responses)
+        correct_responses = [chr(i + 97) for i, option in enumerate(options) if option.is_correct]
 
-    botState.transition_to(trivia_bot)
-    await msg.channel.send("Type !join_game to join a team for trivia!")
-    # sleep for 30 while players join
-    await asyncio.sleep(10)
-    trivia_bot.game_start()
+        trivia_bot = TriviaBot(num_teams=num_teams,
+                               question=question.question,
+                               options=options_map,
+                               correct_responses=correct_responses,
+                               msg=msg)
 
-    # TODO move this to an observer
-    await msg.channel.send("Answer in the next %s seconds!")
-    await asyncio.sleep(10)
-    trivia_bot.closed = True
+        trivia_bot.attach(TriviaChatObserver())
+        trivia_bot.attach(TriviaAnswerTimerObserver())
+        botState.transition_to(trivia_bot)
 
-    # Args are category (optional)
-    # fetch a question and its answers
-    # populate the trivia bot
-    # allow users to join
-    # start game - kicking off answer timer (ends at specified time or all users answer)
-    # game ends
-    pass
+        await msg.channel.send("Type !join_game to join a team for trivia!")
+        # sleep for 30 while players join
+        await asyncio.sleep(30)
+        await trivia_bot.game_start()
+
 
 # TODO need a better way to do arg parsing so every command doesn't
 # look like this

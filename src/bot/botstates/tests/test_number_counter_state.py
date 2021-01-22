@@ -1,6 +1,6 @@
 import pytest
 
-from unittest.mock import MagicMock, AsyncMock
+from unittest.mock import AsyncMock
 
 from src.bot.botstates.Context import Context as BotStateContext
 from src.bot.botstates.NumberCounterBot import NumberCounterBot
@@ -33,7 +33,7 @@ async def test_event_message_handling():
     target_number = 20
     num_teams = 4
     number_counter = NumberCounterBot(num_teams=num_teams, target_number=target_number)
-    number_counter.game_start()
+    await number_counter.game_start()
 
     mock_message_context = AsyncMock()
     number_counter.teams = {0: 0, 1: 1, 2: 2, 3: 3}
@@ -56,7 +56,7 @@ async def test_event_message_handling():
         then win is not called
     """
     number_counter = NumberCounterBot(num_teams=2, target_number=2)
-    number_counter.game_start()
+    await number_counter.game_start()
     number_counter.teams = {0: 0, 1: 1}
 
     mock_message_context = AsyncMock()

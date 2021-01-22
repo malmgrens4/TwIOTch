@@ -9,10 +9,10 @@ from src.bot.botstates.TeamGameHandler import TeamGameHandler
 from src.bot.botstates.DefaultBot import DefaultBot
 
 
-class TriviaBot(BotState, TeamGameHandler, Subject):
+class TriviaBot(TeamGameHandler, BotState, Subject):
 
     def __init__(self, num_teams: int, question: str,
-                 options: Dict[str, str], correct_responses: [str]):
+                 options: Dict[str, str], correct_responses: [str], msg: Message):
 
         super().__init__(num_teams=num_teams)
         self.question = question
@@ -23,24 +23,35 @@ class TriviaBot(BotState, TeamGameHandler, Subject):
         self.won = False
         self.winning_team_ids = []
 
+        self.msg = msg
+
+
         """Contains teams answers (a map containing the user and their answer)"""
         """{team_id: {user_id: answer}}"""
         self.team_answers = [{} for _ in range(self.num_teams)]
 
     def attach(self, observer: Observer) -> None:
-        pass
+        self.observers.append(observer)
 
     def detach(self, observer: Observer) -> None:
-        pass
+        self.observers.remove(observer)
 
     async def notify(self) -> None:
         for observer in self.observers:
             await observer.update(self)
 
-    def handle_join(self, msg: Message) -> None:
-        super().handle_join(msg)
+    async def handle_join(self, msg: Message) -> None:
+        self.msg = msg
+        await super().handle_join(msg)
+        await self.notify()
+
+    async def game_start(self):
+        await super().game_start()
+        await self.notify()
 
     async def handle_event_message(self, msg: Message) -> None:
+        self.msg = msg
+
         if not self._game_started:
             return
 

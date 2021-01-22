@@ -22,7 +22,7 @@ async def test_trivia_answers():
     mock_message.author.id = user1_id
     mock_message.content = "a"
 
-    trivia_bot.game_start()
+    await trivia_bot.game_start()
 
     await trivia_bot.handle_event_message(mock_message)
 
@@ -42,7 +42,7 @@ async def test_all_users_answered():
     mock_message.author.id = user1_id
     mock_message.content = "a"
 
-    trivia_bot.game_start()
+    await trivia_bot.game_start()
 
     await trivia_bot.handle_event_message(mock_message)
 
@@ -71,7 +71,7 @@ async def test_invalid_trivia_answer():
     mock_message.author.id = user1_id
     mock_message.content = "og pogchamp"
 
-    trivia_bot.game_start()
+    await trivia_bot.game_start()
 
     await trivia_bot.handle_event_message(mock_message)
 
@@ -91,7 +91,7 @@ async def test_team_win():
     mock_message.author.id = user1_id
     mock_message.content = "a"
 
-    trivia_bot.game_start()
+    await trivia_bot.game_start()
 
     await trivia_bot.handle_event_message(mock_message)
 
@@ -118,7 +118,7 @@ async def test_early_end():
     mock_message.author.id = user1_id
     mock_message.content = "b"
 
-    trivia_bot.game_start()
+    await trivia_bot.game_start()
 
     await trivia_bot.handle_event_message(mock_message)
 
@@ -137,7 +137,7 @@ async def test_second_answer_ignored():
     trivia_bot.teams = {user1_id: 0, user2_id: 1}
     mock_message = AsyncMock()
 
-    trivia_bot.game_start()
+    await trivia_bot.game_start()
 
     mock_message.author.id = user1_id
     mock_message.content = "b"

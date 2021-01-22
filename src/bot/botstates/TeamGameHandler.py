@@ -18,7 +18,6 @@ class TeamGameHandler:
         if num_teams <= 1:
             num_teams = 2
         self.num_teams = num_teams
-
         self.teams: Dict[int, int] = {}
         self.winning_team_id = None
         self._game_started = False
@@ -29,7 +28,7 @@ class TeamGameHandler:
             reverse_dict.setdefault(v, []).append(k)
         return reverse_dict
 
-    def game_start(self):
+    async def game_start(self):
         self._game_started = True
 
     async def handle_join(self, msg: Message) -> None:
