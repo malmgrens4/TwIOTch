@@ -135,4 +135,7 @@ config.ini
 .idea
 
 # Pipenv environment variables
-.env
+*.env
+
+# sqlite3 db
+*.db

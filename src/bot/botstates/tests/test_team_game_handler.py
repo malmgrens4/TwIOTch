@@ -15,7 +15,7 @@ async def test_team_assignment():
     """
     user1_id = 1
     user2_id = 2
-    number_counter = TeamGameHandler(num_teams=2, target_number=20)
+    number_counter = TeamGameHandler(num_teams=2)
 
     mock_user_join_context = AsyncMock()
     mock_user_join_context.author.id = user1_id

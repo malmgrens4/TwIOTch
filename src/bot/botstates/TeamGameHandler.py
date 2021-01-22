@@ -8,7 +8,7 @@ from twitchio.dataclasses import Message
 
 class TeamGameHandler:
 
-    def __init__(self, target_number: int, num_teams: int = 2):
+    def __init__(self, num_teams: int = 2):
         """
         Parameters
         ----------
@@ -18,10 +18,6 @@ class TeamGameHandler:
         if num_teams <= 1:
             num_teams = 2
         self.num_teams = num_teams
-
-        if target_number <= 0:
-            target_number = 1
-        self.target_number = target_number
 
         self.teams: Dict[int, int] = {}
         self.winning_team_id = None

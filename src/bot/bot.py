@@ -5,15 +5,18 @@ import asyncio
 import configparser
 import logging.config
 from twitchio.ext import commands
+from sqlalchemy.sql.expression import func
+
 from sqlalchemy import insert
 from src.bot.botstates.DefaultBot import DefaultBot
 # from src.blueteeth.toolbox.toolbox import get_phuelight
 from src.bot.botstates.Context import Context as BotStateContext
 from twitchio.dataclasses import Message
 from src.bot.botstates.NumberCounterBot import NumberCounterBot
+from src.bot.botstates.TriviaBot import TriviaBot
 from src.bot.gameobservers.NumberGameChatObserver import NumberGameChatObserver
-from src.bot.db.schema import engine, User
-
+from src.bot.gameobservers.NumberGameScoreObserver import NumberGameScoreObserver
+from src.bot.db.schema import session_scope, User, TriviaQuestion
 
 config = configparser.ConfigParser()
 config.read('config.ini')
@@ -32,6 +35,7 @@ bot = commands.Bot(
     prefix=os.environ['BOT_PREFIX'],
     initial_channels=[os.environ['CHANNEL']]
 )
+
 
 @bot.event
 async def event_message(ctx: Message):
@@ -61,8 +65,9 @@ async def event_ready():
 @bot.command(name='join_game')
 async def join_game(msg: Message):
     """User (Sender) is joining the current event. Default state ignores if no current game."""
-    with engine.connect() as conn:
-        conn.execute(insert(User).values(id=msg.author.id, name=msg.author.name))
+    with session_scope() as session:
+        session.add(User(id=msg.author.id, name=msg.author.name))
+
     await botState.handle_join(msg)
 
 
@@ -80,12 +85,12 @@ async def start_number_game(msg: Message):
     target_number = int(args[0])
     number_counter_bot = NumberCounterBot(num_teams, target_number)
     number_counter_bot.attach(NumberGameChatObserver())
-    # register the listeners, how do we make this async
+    number_counter_bot.attach(NumberGameScoreObserver())
 
     botState.transition_to(number_counter_bot)
     await msg.channel.send("Type !join_game to join a team for number showdown!")
     # sleep for 30 while players join
-    await asyncio.sleep(30)
+    await asyncio.sleep(10)
     number_counter_bot.game_start()
     await msg.channel.send("Number game started with %s teams. First to count to %s wins!" % (num_teams, target_number))
 
@@ -93,8 +98,54 @@ async def start_number_game(msg: Message):
 @bot.command(name='start_trivia')
 async def start_trivia(msg: Message):
     """Starts a game of trivia."""
-    pass
+    if not msg.author.is_mod:
+        return
 
+    args = msg.content.split()[1:]
+    category = None
+    num_teams = 2
+
+    if len(args) > 0:
+        category = args[0]
+
+    if len(args) == 2:
+        num_teams = args[1]
+
+    with session_scope() as session:
+        if category:
+            question_query = session.query(TriviaQuestion)
+        else:
+            question_query = session.query(TriviaQuestion).filter(TriviaQuestion.category == category)
+
+        question = question_query.order_by(func.random()).first()
+        options = question.options
+
+    options_map = [{chr(i): option.option} for i, option in enumerate(options)]
+    correct_responses = [chr(i) for i, option in enumerate(options) if option.is_correct]
+
+    trivia_bot = TriviaBot(num_teams=num_teams,
+                           question=question.question,
+                           options=options_map,
+                           correct_responses=correct_responses)
+
+    botState.transition_to(trivia_bot)
+    await msg.channel.send("Type !join_game to join a team for trivia!")
+    # sleep for 30 while players join
+    await asyncio.sleep(10)
+    trivia_bot.game_start()
+
+    # TODO move this to an observer
+    await msg.channel.send("Answer in the next %s seconds!")
+    await asyncio.sleep(10)
+    trivia_bot.closed = True
+
+    # Args are category (optional)
+    # fetch a question and its answers
+    # populate the trivia bot
+    # allow users to join
+    # start game - kicking off answer timer (ends at specified time or all users answer)
+    # game ends
+    pass
 
 # TODO need a better way to do arg parsing so every command doesn't
 # look like this

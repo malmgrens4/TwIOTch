@@ -1,28 +1,49 @@
+import asyncio
 from twitchio.dataclasses import Message
 from typing import Dict
 
+from src.bot.gameobservers.Observer import Observer
+from src.bot.gameobservers.Subject import Subject
 from src.bot.botstates.BotState import BotState
 from src.bot.botstates.TeamGameHandler import TeamGameHandler
+from src.bot.botstates.DefaultBot import DefaultBot
 
 
-class TriviaBot(BotState, TeamGameHandler):
+class TriviaBot(BotState, TeamGameHandler, Subject):
 
-    def __init__(self, target_number: int, num_teams: int, question: str,
-                 options: Dict[str, str], correct_response: str):
+    def __init__(self, num_teams: int, question: str,
+                 options: Dict[str, str], correct_responses: [str]):
 
-        super().__init__(target_number=target_number, num_teams=num_teams)
+        super().__init__(num_teams=num_teams)
         self.question = question
         self.options = options
-        self.correct_response = correct_response
+        self.correct_responses = correct_responses
+
+        self.observers = []
+        self.won = False
+        self.winning_team_ids = []
 
         """Contains teams answers (a map containing the user and their answer)"""
         """{team_id: {user_id: answer}}"""
         self.team_answers = [{} for _ in range(self.num_teams)]
 
-    async def handle_join(self, msg: Message) -> None:
+    def attach(self, observer: Observer) -> None:
+        pass
+
+    def detach(self, observer: Observer) -> None:
+        pass
+
+    async def notify(self) -> None:
+        for observer in self.observers:
+            await observer.update(self)
+
+    def handle_join(self, msg: Message) -> None:
         super().handle_join(msg)
 
     async def handle_event_message(self, msg: Message) -> None:
+        if not self._game_started:
+            return
+
         team_id = self.teams.get(msg.author.id)
         if team_id is None:
             return
@@ -34,14 +55,44 @@ class TriviaBot(BotState, TeamGameHandler):
         if user_input in self.options:
             self.team_answers[team_id][msg.author.id] = user_input
 
-    async def get_talley(self):
+            # every user has answered so end the game
+            if sum([len(answers.values()) for answers in self.team_answers]) == len(self.teams):
+                await self.end_game()
+                return
+
+        await self.notify()
+
+    def get_tally(self):
         """
         :return: Dict {team_id: percentage_right (float)}
         """
-        team_weights: Dict[int, float] = {}
-        for i, team in enumerate(self.team_answers):
-            all_answers = team.values()
-            num_correct_answers = all_answers.count(self.correct_response)
+        team_weights: [float] = [0 for _ in range(self.num_teams)]
+        for i, answers in enumerate(self.team_answers):
+
+            all_answers = list(answers.values())
+
+            if len(all_answers) == 0:
+                team_weights[i] = 0
+                continue
+
+            num_correct_answers = len([answer for answer in all_answers if answer in self.correct_responses])
             team_weights[i] = num_correct_answers/len(all_answers)
+
         return team_weights
+
+    async def end_game(self):
+        """
+        Talley results and determine a winner
+        :return:
+        """
+        team_weights = self.get_tally()
+        winning_team_ids = [i for i, team_weight in enumerate(team_weights) if team_weight == max(team_weights)]
+        await self.win(winning_team_ids)
+
+    async def win(self, winning_team_ids: int):
+        self.won = True
+        self.winning_team_ids = winning_team_ids
+        self.context.transition_to(DefaultBot())
+        await self.notify()
+
 
