@@ -25,10 +25,12 @@ class TriviaBot(TeamGameHandler, BotState, Subject):
 
         self.msg = msg
 
-
-        """Contains teams answers (a map containing the user and their answer)"""
-        """{team_id: {user_id: answer}}"""
-        self.team_answers = [{} for _ in range(self.num_teams)]
+        """
+            Contains teams answers (a list of teams maps: 
+            map containing the user and their answer) 
+            [{user_id: answer}]
+        """
+        self.team_answers: [Dict[int, str]] = [{} for _ in range(self.num_teams)]
 
     def attach(self, observer: Observer) -> None:
         self.observers.append(observer)
@@ -50,9 +52,12 @@ class TriviaBot(TeamGameHandler, BotState, Subject):
         await self.notify()
 
     async def handle_event_message(self, msg: Message) -> None:
+        """
+        Process incoming user message in trivia state
+        """
         self.msg = msg
 
-        if not self._game_started:
+        if not self.game_started:
             return
 
         team_id = self.teams.get(msg.author.id)
@@ -87,14 +92,13 @@ class TriviaBot(TeamGameHandler, BotState, Subject):
                 continue
 
             num_correct_answers = len([answer for answer in all_answers if answer in self.correct_responses])
-            team_weights[i] = num_correct_answers/len(all_answers)
+            team_weights[i] = num_correct_answers / len(all_answers)
 
         return team_weights
 
     async def end_game(self):
         """
         Talley results and determine a winner
-        :return:
         """
         team_weights = self.get_tally()
         winning_team_ids = [i for i, team_weight in enumerate(team_weights) if team_weight == max(team_weights)]
@@ -107,5 +111,3 @@ class TriviaBot(TeamGameHandler, BotState, Subject):
         self.winning_team_ids = winning_team_ids
         self.context.transition_to(DefaultBot())
         await self.notify()
-
-

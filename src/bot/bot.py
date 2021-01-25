@@ -97,6 +97,16 @@ async def start_number_game(msg: Message):
     await msg.channel.send("Number game started with %s teams. First to count to %s wins!" % (num_teams, target_number))
 
 
+@bot.command(name='trivia_leaderboard')
+async def trivia_leaderboard(msg: Message):
+    """Send the top 10 players names for trivia wins"""
+    with session_scope() as session:
+        question_query = session.query(User).order_by(User.trivia_wins).limit(10)
+        for i, user in enumerate(question_query):
+            await msg.channel.send("""%s. %s \n""" % (i + 1, user.name))
+
+
+
 @bot.command(name='start_trivia')
 async def start_trivia(msg: Message):
     """Starts a game of trivia."""

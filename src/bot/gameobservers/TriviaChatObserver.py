@@ -15,7 +15,7 @@ class TriviaChatObserver(Observer):
 
     async def update(self, subject: TriviaBot) -> None:
 
-        if not self.question_asked and subject._game_started:
+        if not self.question_asked and subject.game_started:
             self.question_asked = True
             await subject.msg.channel.send("Question: %s" % subject.question)
             for key, value in subject.options.items():

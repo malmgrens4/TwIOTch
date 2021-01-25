@@ -20,7 +20,7 @@ class TeamGameHandler:
         self.num_teams = num_teams
         self.teams: Dict[int, int] = {}
         self.winning_team_id = None
-        self._game_started = False
+        self.game_started = False
 
     def get_team_member_map(self):
         reverse_dict = {}
@@ -29,10 +29,10 @@ class TeamGameHandler:
         return reverse_dict
 
     async def game_start(self):
-        self._game_started = True
+        self.game_started = True
 
     async def handle_join(self, msg: Message) -> None:
-        if self._game_started:
+        if self.game_started:
             return
 
         if msg.author.id in self.teams:

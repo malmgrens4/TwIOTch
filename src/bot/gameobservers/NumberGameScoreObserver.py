@@ -1,4 +1,3 @@
-from __future__ import annotations
 from sqlalchemy.exc import DBAPIError, DisconnectionError, SQLAlchemyError
 import logging
 

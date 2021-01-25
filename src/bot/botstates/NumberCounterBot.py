@@ -47,7 +47,7 @@ class NumberCounterBot(TeamGameHandler, BotState, Subject):
     async def handle_event_message(self, msg: Message) -> None:
         self.msg = msg
 
-        if not self._game_started:
+        if not self.game_started:
             return
 
         team_id = self.teams.get(msg.author.id)

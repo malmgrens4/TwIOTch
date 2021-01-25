@@ -19,9 +19,11 @@ class TriviaAnswerTimerObserver(Observer):
             await asyncio.sleep(30)
             await subject.end_game()
 
+        if subject.game_started and not self.task:
+            self.task = asyncio.create_task(close_trivia())
+            await self.task
+
         if subject.won and self.task:
             self.task.cancel()
 
-        if subject._game_started and not self.task:
-            self.task = asyncio.create_task(close_trivia())
-            await self.task
+
