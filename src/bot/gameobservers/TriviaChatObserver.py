@@ -48,5 +48,5 @@ class TriviaChatObserver(Observer):
             except IndexError as index_err:
                 log.error(index_err)
 
-            await subject.msg.channel.send("Team %s wins!" % winning_team_names)
+            await subject.msg.channel.send("Team %s wins!" % (", ".join(winning_team_names)))
             await subject.msg.channel.send("The following players win: %s" % winning_user_names)

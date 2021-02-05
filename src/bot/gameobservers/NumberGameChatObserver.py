@@ -39,4 +39,4 @@ class NumberGameChatObserver(Observer):
                 log.error(index_err)
 
             await subject.msg.channel.send("Team %s wins!" % winning_team_name)
-            await subject.msg.channel.send("The following players win: %s" % winning_user_names)
+            await subject.msg.channel.send("The following players win: %s" % (", ".join(winning_user_names)))

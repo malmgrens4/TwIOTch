@@ -1,5 +1,4 @@
-# bot.py
-import os  # for importing env vars for the bot to use
+import os
 import asyncio
 
 import configparser
@@ -7,7 +6,6 @@ import logging.config
 from twitchio.ext import commands
 from sqlalchemy.sql.expression import func
 
-from sqlalchemy import insert
 from src.bot.botstates.DefaultBot import DefaultBot
 # from src.blueteeth.toolbox.toolbox import get_phuelight
 from src.bot.botstates.Context import Context as BotStateContext

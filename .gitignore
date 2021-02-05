@@ -138,4 +138,5 @@ config.ini
 *.env
 
 # sqlite3 db
-*.db
+.db
+*_db.*

@@ -16,6 +16,7 @@ pytest-mock = "*"
 sqlalchemy = "*"
 asyncio = "*"
 typing-extensions = "*"
+requests = "*"
 
 [requires]
 python_version = "3.9"
