@@ -53,4 +53,4 @@ class TriviaChatObserver(Observer):
             else:
                 await subject.msg.channel.send("Teams %s win!" % (", ".join(winning_team_names)))
 
-            await subject.msg.channel.send("The following players win: %s!" % ", ".winning_user_names)
+            await subject.msg.channel.send("The following players win: %s!" % ", ".join(winning_user_names))
