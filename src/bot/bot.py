@@ -53,7 +53,6 @@ async def event_message(ctx: Message):
     # The different states will be like (trivia, number_counter, default)
     # Let's start with the number counter to see how this will look
 
-
 @bot.event
 async def event_ready():
     """Called once when the bot goes online."""
@@ -62,7 +61,7 @@ async def event_ready():
     await ws.send_privmsg(os.environ['CHANNEL'], f"/me has arrived.")
 
 
-@bot.command(name='join_game')
+@bot.command(name='join_game', aliases=['jointrivia', 'joinnumber', 'joingame'])
 async def join_game(msg: Message):
     """User (Sender) is joining the current event. Default state ignores if no current game."""
     with session_scope() as session:
@@ -95,17 +94,39 @@ async def start_number_game(msg: Message):
     await msg.channel.send("Number game started with %s teams. First to count to %s wins!" % (num_teams, target_number))
 
 
-@bot.command(name='trivia_leaderboard')
-async def trivia_leaderboard(msg: Message):
-    """Send the top 10 players names for trivia wins"""
+@bot.command(name='leaderboard')
+async def leaderboard(msg: Message):
+    """Lists leader board for given game"""
+    args = msg.content.split()[1:]
+    if len(args) > 0:
+        game_name = args[0]
+
+    if not game_name:
+        await msg.channel.send("Please specify a game: number or trivia.")
+        return
+
     with session_scope() as session:
-        question_query = session.query(User).order_by(User.trivia_wins).limit(10)
-        for i, user in enumerate(question_query):
-            await msg.channel.send("""%s. %s \n""" % (i + 1, user.name))
+        if game_name == 'number':
+            leaderboard_query = session.query(User).order_by(User.number_game_wins.desc()).limit(10).all()
+        else:
+            leaderboard_query = session.query(User).order_by(User.trivia_wins.desc()).limit(10).all()
+
+        for i, user in enumerate(leaderboard_query):
+            await msg.channel.send("%s. %s" % (i + 1, user.name))
 
 
+@bot.command(name='categories')
+async def categories(msg: Message):
+    """Lists categories for trivia"""
+    with session_scope() as session:
 
-@bot.command(name='start_trivia')
+        category_query = session.query(TriviaQuestion.category).distinct().all()
+
+        for row in category_query:
+            await msg.channel.send("%s" % row[0])
+
+
+@bot.command(name='start_trivia', aliases=['trivia'])
 async def start_trivia(msg: Message):
     """Starts a game of trivia."""
     if not msg.author.is_mod:
@@ -117,17 +138,19 @@ async def start_trivia(msg: Message):
 
     if len(args) > 0:
         category = args[0]
-
+        category = category.replace('"', '')
     if len(args) == 2:
-        num_teams = args[1]
+        num_teams = int(args[1]) or 2
 
     with session_scope() as session:
         if category:
-            question_query = session.query(TriviaQuestion).filter(TriviaQuestion.category == category)
+            question_query = session.query(TriviaQuestion).filter(TriviaQuestion.category.contains(category))
         else:
             question_query = session.query(TriviaQuestion)
 
         question = question_query.order_by(func.random()).first()
+        if not question:
+            await msg.channel.send('Category not found.')
         options = question.options
 
         options_map = {}
@@ -146,7 +169,7 @@ async def start_trivia(msg: Message):
         trivia_bot.attach(TriviaAnswerTimerObserver())
         botState.transition_to(trivia_bot)
 
-        await msg.channel.send("Type !join_game to join a team for trivia!")
+        await msg.channel.send("Type !jointrivia to join a team for trivia!")
         # sleep for 30 while players join
         await asyncio.sleep(30)
         await trivia_bot.game_start()
