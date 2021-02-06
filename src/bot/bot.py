@@ -82,7 +82,7 @@ async def start_number_game(msg: Message):
         num_teams = int(args[1])
 
     target_number = int(args[0])
-    number_counter_bot = NumberCounterBot(num_teams, target_number)
+    number_counter_bot = NumberCounterBot(target_number, num_teams)
     number_counter_bot.attach(NumberGameChatObserver())
     number_counter_bot.attach(NumberGameScoreObserver())
 
