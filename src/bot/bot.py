@@ -53,6 +53,7 @@ async def event_message(ctx: Message):
     # The different states will be like (trivia, number_counter, default)
     # Let's start with the number counter to see how this will look
 
+
 @bot.event
 async def event_ready():
     """Called once when the bot goes online."""
@@ -87,16 +88,16 @@ async def start_number_game(msg: Message):
     number_counter_bot.attach(NumberGameScoreObserver())
 
     botState.transition_to(number_counter_bot)
-    await msg.channel.send("Type !join_game to join a team for number showdown!")
+    await msg.channel.send("Type !joingame to join a team for number showdown!")
     # sleep for 30 while players join
-    await asyncio.sleep(10)
+    await asyncio.sleep(20)
     await number_counter_bot.game_start()
     await msg.channel.send("Number game started with %s teams. First to count to %s wins!" % (num_teams, target_number))
 
 
 @bot.command(name='leaderboard')
 async def leaderboard(msg: Message):
-    """Lists leader board for given game"""
+    """Lists leader board for given game. Number or Trivia."""
     args = msg.content.split()[1:]
     if len(args) > 0:
         game_name = args[0]
@@ -117,7 +118,7 @@ async def leaderboard(msg: Message):
 
 @bot.command(name='categories')
 async def categories(msg: Message):
-    """Lists categories for trivia"""
+    """Lists categories for trivia."""
     with session_scope() as session:
 
         category_query = session.query(TriviaQuestion.category).distinct().all()
@@ -128,7 +129,7 @@ async def categories(msg: Message):
 
 @bot.command(name='start_trivia', aliases=['trivia'])
 async def start_trivia(msg: Message):
-    """Starts a game of trivia."""
+    """Starts a game of trivia. A category may be specified."""
     if not msg.author.is_mod:
         return
 
@@ -171,8 +172,19 @@ async def start_trivia(msg: Message):
 
         await msg.channel.send("Type !jointrivia to join a team for trivia!")
         # sleep for 30 while players join
-        await asyncio.sleep(30)
+        await asyncio.sleep(20)
         await trivia_bot.game_start()
+
+
+@bot.command(name='help')
+async def help(msg: Message):
+    """See this list of commands."""
+    for name, command in bot.commands.items():
+        names = [name]
+        if command.aliases:
+            names.extend(command.aliases)
+
+        await msg.channel.send("""!%s: %s""" % (", ".join(names), command._callback.__doc__))
 
 
 # TODO need a better way to do arg parsing so every command doesn't

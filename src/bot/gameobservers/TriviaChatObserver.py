@@ -48,7 +48,10 @@ class TriviaChatObserver(Observer):
             except IndexError as index_err:
                 log.error(index_err)
 
-            if len(winning_team_names) == 1:
+            await subject.msg.channel.send("The correct answers were: %s" % ", ".join(subject.correct_responses))
+            if len(winning_team_names) == 0:
+                await subject.msg.channel.send("Really, none of you? Not a single person answered correctly!")
+            elif len(winning_team_names) == 1:
                 await subject.msg.channel.send("Team %s wins!" % (", ".join(winning_team_names)))
             else:
                 await subject.msg.channel.send("Teams %s win!" % (", ".join(winning_team_names)))
