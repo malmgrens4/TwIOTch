@@ -11,11 +11,11 @@ from src.blueteeth.models.ModelUtils import translate
 class PhueLight:
     # TODO Move this to a config file
     speed = 700
-    bridge = Bridge(os.environ['BRIDGE_IP'])
     disco_iterations = 100
     off_deciseconds = 5
 
     def __init__(self):
+        self.bridge = Bridge(os.environ['BRIDGE_IP'])
         self.bridge.connect()
 
     def disco_light(self):
