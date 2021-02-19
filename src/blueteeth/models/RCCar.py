@@ -8,9 +8,8 @@ def retry(func):
         try:
             return func(*args, **kwargs)
         except BluetoothError as err:
-            if err[0][0] == 107:
-                args[0].connect_socket()
-                return func(*args, **kwargs)
+            args[0].connect_socket()
+            return func(*args, **kwargs)
 
     return wrapper
 
