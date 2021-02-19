@@ -1,25 +1,24 @@
-from src.blueteeth.models.Stepper import Stepper
+import os
 from src.blueteeth.models.PhueLight import PhueLight
 from src.blueteeth.models.RCCar import RCCar
 
-dino_stepper_mac = 'Pull from config file'
-cat_stepper_mac = 'None'
-rccar_mac = 'Pull from config'
-# TODO reimplement a retry for instantiating the objects
-# Would it make more sense to establish the connection here and pass that to the object?
+camaro = None
+needle = None
 
 
 def get_phuelight():
     return PhueLight()
 
 
-def get_dino_stepper():
-    return Stepper(dino_stepper_mac)
+def get_camaro():
+    global camaro
+    if camaro is None:
+        camaro = RCCar(os.environ['CAMARO_MAC'])
+    return camaro
 
 
-def get_cat_stepper():
-    return Stepper(cat_stepper_mac)
-
-
-def get_rc_car():
-    return RCCar(rccar_mac)
+def get_needle():
+    global needle
+    if needle is None:
+        needle = RCCar(os.environ['NEEDLE_MAC'])
+    return needle

@@ -1,6 +1,5 @@
 import bluetooth
 
-
 class ESP32BluetoothTool:
     mac_addr = ''
     socket = ''
@@ -9,11 +8,12 @@ class ESP32BluetoothTool:
     def __init__(self, mac_addr: str, port: int = 1):
         self.mac_addr = mac_addr
         self.port = port
-        self._connect_socket()
+        self.connect_socket()
 
-    def _connect_socket(self):
+    def connect_socket(self):
         self.socket = bluetooth.BluetoothSocket(bluetooth.RFCOMM)
         self.socket.connect((self.mac_addr, self.port))
 
     def close_socket(self):
         self.socket.close()
+
