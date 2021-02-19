@@ -1,4 +1,24 @@
 import bluetooth
+from bluetooth import BluetoothError
+import logging
+
+log = logging.getLogger(__name__)
+
+
+def retry(func):
+    def wrapper(*args, **kwargs):
+        try:
+            return func(*args, **kwargs)
+        except BluetoothError as err:
+            log.error("Error when calling bt cmd", err)
+            print(err)
+            print(args)
+            args[0].connect_socket()
+            print("Bluetooth now connected! Attempting instruction.")
+            return func(*args, **kwargs)
+
+    return wrapper
+
 
 class ESP32BluetoothTool:
     mac_addr = ''
