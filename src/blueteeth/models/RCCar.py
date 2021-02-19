@@ -1,4 +1,18 @@
+from bluetooth import BluetoothError
+
 from src.blueteeth.models.ESP32BluetoothTool import ESP32BluetoothTool
+
+
+def retry(func):
+    def wrapper(*args, **kwargs):
+        try:
+            return func(*args, **kwargs)
+        except BluetoothError as err:
+            if err[0][0] == 107:
+                args[0].connect_socket()
+                return func(*args, **kwargs)
+
+    return wrapper
 
 
 class RCCar(ESP32BluetoothTool):
@@ -6,7 +20,7 @@ class RCCar(ESP32BluetoothTool):
     def __init__(self, mac_addr: str, port: int = 1):
         super().__init__(mac_addr, port)
 
-    @super().retry
+    @retry
     def forward(self, duration):
         self.socket.send("F%s\n" % duration)
 
@@ -24,4 +38,8 @@ class RCCar(ESP32BluetoothTool):
 
     def light_off(self):
         self.socket.send("D-1")
+
+
+
+
 

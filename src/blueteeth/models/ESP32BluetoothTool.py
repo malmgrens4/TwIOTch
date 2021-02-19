@@ -16,10 +16,3 @@ class ESP32BluetoothTool:
 
     def close_socket(self):
         self.socket.close()
-
-    def retry(self, func):
-        def wrapper(*args, **kwargs):
-            self.connect_socket()
-            return func(*args, **kwargs)
-
-        return wrapper
