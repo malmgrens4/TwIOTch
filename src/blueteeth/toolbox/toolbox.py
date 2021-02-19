@@ -4,10 +4,14 @@ from src.blueteeth.models.RCCar import RCCar
 
 camaro = None
 needle = None
+phue_light = None
 
 
 def get_phuelight():
-    return PhueLight()
+    global phue_light
+    if not phue_light:
+        phue_light = PhueLight()
+    return phue_light
 
 
 def get_camaro():
