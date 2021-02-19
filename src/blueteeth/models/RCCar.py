@@ -6,6 +6,7 @@ class RCCar(ESP32BluetoothTool):
     def __init__(self, mac_addr: str, port: int = 1):
         super().__init__(mac_addr, port)
 
+    @super().retry
     def forward(self, duration):
         self.socket.send("F%s\n" % duration)
 
