@@ -4,8 +4,6 @@ from src.blueteeth.toolbox import toolbox
 
 
 def main():
-
-
     try:
         cam = toolbox.get_camaro()
         ms = 10
