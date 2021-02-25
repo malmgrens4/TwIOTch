@@ -21,10 +21,10 @@ class TriviaChatObserver(Observer):
             for key, value in subject.options.items():
                 await subject.msg.channel.send("%s: %s" % (key, value))
 
-        if subject.won and len(subject.get_team_member_map().values()):
+        if subject.won and len(subject.team_data.get_team_member_map().values()):
             winning_ids = []
             for team_id in subject.winning_team_ids:
-                for winner_id in subject.get_team_member_map()[team_id]:
+                for winner_id in subject.team_data.get_team_member_map()[team_id]:
                     winning_ids.append(winner_id)
 
             winning_team_names = None

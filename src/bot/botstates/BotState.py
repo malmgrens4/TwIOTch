@@ -1,6 +1,6 @@
 from abc import ABC
 from abc import abstractmethod
-
+from twitchio.dataclasses import Message
 from src.bot.botstates import Context
 
 
@@ -15,9 +15,13 @@ class BotState(ABC):
         self._context = context
 
     @abstractmethod
-    async def handle_event_message(self, ctx) -> None:
+    async def can_join(self, msg: Message) -> bool:
         pass
 
     @abstractmethod
-    async def handle_join(self, ctx) -> None:
+    async def handle_event_message(self, msg: Message) -> None:
+        pass
+
+    @abstractmethod
+    async def handle_join(self, msg: Message) -> None:
         pass

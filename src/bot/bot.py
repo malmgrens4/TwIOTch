@@ -4,19 +4,19 @@ import asyncio
 import configparser
 import logging.config
 from twitchio.ext import commands
-from sqlalchemy.sql.expression import func
-
 from src.bot.botstates.DefaultBot import DefaultBot
-# from src.blueteeth.toolbox.toolbox import get_phuelight
+from src.blueteeth.toolbox.toolbox import get_phuelight
 from src.bot.botstates.Context import Context as BotStateContext
 from twitchio.dataclasses import Message
 from src.bot.botstates.NumberCounterBot import NumberCounterBot
 from src.bot.botstates.TriviaBot import TriviaBot
 from src.bot.gameobservers.NumberGameChatObserver import NumberGameChatObserver
 from src.bot.gameobservers.NumberGameScoreObserver import NumberGameScoreObserver
-from src.bot.gameobservers.TriviaChatObserver import TriviaChatObserver
-from src.bot.gameobservers.TriviaAnswerTimerObserver import TriviaAnswerTimerObserver
-from src.bot.db.schema import session_scope, User, TriviaQuestion
+
+from src.bot.db.schema import session_scope, Session, User, TriviaQuestion, TriviaOption
+from src.bot.botstates.TeamGameHandler import TeamGameHandler
+from src.bot.TeamData import TeamData
+from src.bot.commandhandlers import trivia
 
 config = configparser.ConfigParser()
 config.read('config.ini')
@@ -27,6 +27,8 @@ log = logging.getLogger(__name__)
 # teams (all twitch chat members that opt in)
 botState = BotStateContext(DefaultBot())
 
+team_data = TeamData()
+
 bot = commands.Bot(
     # set up the bot
     irc_token=os.environ['TMI_TOKEN'],
@@ -35,6 +37,9 @@ bot = commands.Bot(
     prefix=os.environ['BOT_PREFIX'],
     initial_channels=[os.environ['CHANNEL']]
 )
+
+
+
 
 
 @bot.event
@@ -62,13 +67,27 @@ async def event_ready():
     await ws.send_privmsg(os.environ['CHANNEL'], f"/me has arrived.")
 
 
+@bot.command(name='create_teams', aliases=['teams', 'resetteams'])
+async def create_teams(msg: Message):
+    if not msg.author.is_mod:
+        return
+
+    args = parse_args(msg, ['num_teams'])
+    team_data.reset(args['num_teams'])
+    await msg.channel.send("Game session has started. Type !joingame to play!")
+
+
 @bot.command(name='join_game', aliases=['jointrivia', 'joinnumber', 'joingame'])
 async def join_game(msg: Message):
     """User (Sender) is joining the current event. Default state ignores if no current game."""
     with session_scope() as session:
         session.add(User(id=msg.author.id, name=msg.author.name))
 
-    await botState.handle_join(msg)
+    if await botState.can_join(msg):
+        await team_data.handle_join(msg)
+        await botState.handle_join(msg)
+    else:
+        await msg.channel.send("You may not currently join the game.")
 
 
 @bot.command(name='start_number_game')
@@ -77,13 +96,10 @@ async def start_number_game(msg: Message):
     if not msg.author.is_mod:
         return
 
-    args = msg.content.split()[1:]
-    num_teams = 2
-    if len(args) == 2:
-        num_teams = int(args[1])
+    args = parse_args(msg, ['target_number'])
+    target_number = int(args['target_number'])
 
-    target_number = int(args[0])
-    number_counter_bot = NumberCounterBot(target_number, num_teams)
+    number_counter_bot = NumberCounterBot(target_number=target_number, team_data=team_data)
     number_counter_bot.attach(NumberGameChatObserver())
     number_counter_bot.attach(NumberGameScoreObserver())
 
@@ -92,15 +108,15 @@ async def start_number_game(msg: Message):
     # sleep for 30 while players join
     await asyncio.sleep(20)
     await number_counter_bot.game_start()
-    await msg.channel.send("Number game started with %s teams. First to count to %s wins!" % (num_teams, target_number))
+    await msg.channel\
+        .send(f"Number game started with {team_data.num_teams} teams. First to count to {target_number} wins!")
 
 
 @bot.command(name='leaderboard')
 async def leaderboard(msg: Message):
     """Lists leader board for given game. Number or Trivia."""
-    args = msg.content.split()[1:]
-    if len(args) > 0:
-        game_name = args[0]
+    args = parse_args(msg, ['game_name'])
+    game_name = args['game_name']
 
     if not game_name:
         await msg.channel.send("Please specify a game: number or trivia.")
@@ -113,67 +129,18 @@ async def leaderboard(msg: Message):
             leaderboard_query = session.query(User).order_by(User.trivia_wins.desc()).limit(10).all()
 
         for i, user in enumerate(leaderboard_query):
-            await msg.channel.send("%s. %s" % (i + 1, user.name))
+            await msg.channel.send(f"{i + 1}. {user.name}")
 
 
 @bot.command(name='categories')
 async def categories(msg: Message):
     """Lists categories for trivia."""
-    with session_scope() as session:
-
-        category_query = session.query(TriviaQuestion.category).distinct().all()
-
-        for row in category_query:
-            await msg.channel.send("%s" % row[0])
-
+    return await trivia.categories(msg)
 
 @bot.command(name='start_trivia', aliases=['trivia'])
 async def start_trivia(msg: Message):
     """Starts a game of trivia. A category may be specified."""
-    if not msg.author.is_mod:
-        return
-
-    args = msg.content.split()[1:]
-    category = None
-    num_teams = 2
-
-    if len(args) > 0:
-        category = args[0]
-        category = category.replace('"', '')
-    if len(args) == 2:
-        num_teams = int(args[1]) or 2
-
-    with session_scope() as session:
-        if category:
-            question_query = session.query(TriviaQuestion).filter(TriviaQuestion.category.contains(category))
-        else:
-            question_query = session.query(TriviaQuestion)
-
-        question = question_query.order_by(func.random()).first()
-        if not question:
-            await msg.channel.send('Category not found.')
-        options = question.options
-
-        options_map = {}
-        for i, option in enumerate(options):
-            options_map[chr(i + 97)] = option.option
-
-        correct_responses = [chr(i + 97) for i, option in enumerate(options) if option.is_correct]
-
-        trivia_bot = TriviaBot(num_teams=num_teams,
-                               question=question.question,
-                               options=options_map,
-                               correct_responses=correct_responses,
-                               msg=msg)
-
-        trivia_bot.attach(TriviaChatObserver())
-        trivia_bot.attach(TriviaAnswerTimerObserver())
-        botState.transition_to(trivia_bot)
-
-        await msg.channel.send("Type !jointrivia to join a team for trivia!")
-        # sleep for 30 while players join
-        await asyncio.sleep(20)
-        await trivia_bot.game_start()
+    return await trivia.start_trivia(msg=msg, botState=botState, team_data=team_data)
 
 
 @bot.command(name='help')
@@ -187,32 +154,30 @@ async def help(msg: Message):
         await msg.channel.send("""!%s: %s""" % (", ".join(names), command._callback.__doc__))
 
 
-# TODO need a better way to do arg parsing so every command doesn't
-# look like this
-# @bot.command(name='light')
-# async def light(ctx):
-#     """light"""
-#     phueLight = get_phuelight()
-#
-#     phueLight.set_light()
-#     try:
-#         indices = []
-#         args = ctx.content.split()[1:]
-#
-#         if len(args) <= 0:
-#             await ctx.send('Specify a color! Ex. !light pink')
-#         color_name = args[0]
-#         if color_name == 'disco':
-#             phueLight.disco_light()
-#             return
-#         if len(args) > 1:
-#             # allow users to specify index
-#             for i in range(1, len(args)):
-#                 index = int(args[i]) - 1
-#                 if index < len(phueLight.bridge.lights):
-#                     indices.append(index)
-#         if len(indices) <= 0:
-#             indices = list(range(0, len(phueLight.bridge.lights)))
-#         phueLight.set_light(color_name, indices)
-#     except:
-#         await ctx.send('Try a different color.')
+@bot.command(name='light')
+async def light(ctx):
+    """light"""
+    phueLight = get_phuelight()
+
+    phueLight.set_light()
+    try:
+        indices = []
+        args = ctx.content.split()[1:]
+
+        if len(args) <= 0:
+            await ctx.send('Specify a color! Ex. !light pink')
+        color_name = args[0]
+        if color_name == 'disco':
+            phueLight.disco_light()
+            return
+        if len(args) > 1:
+            # allow users to specify index
+            for i in range(1, len(args)):
+                index = int(args[i]) - 1
+                if index < len(phueLight.bridge.lights):
+                    indices.append(index)
+        if len(indices) <= 0:
+            indices = list(range(0, len(phueLight.bridge.lights)))
+        phueLight.set_light(color_name, indices)
+    except:
+        await ctx.send('Try a different color.')

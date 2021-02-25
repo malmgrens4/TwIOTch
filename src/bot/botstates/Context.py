@@ -1,4 +1,5 @@
 import logging
+from twitchio.dataclasses import Message
 
 from src.bot.botstates import BotState
 
@@ -17,8 +18,11 @@ class Context:
         self._state = state
         self._state.context = self
 
-    async def handle_event_message(self, ctx):
-        await self._state.handle_event_message(ctx)
+    async def handle_event_message(self, msg: Message):
+        await self._state.handle_event_message(msg)
 
-    async def handle_join(self, ctx):
-        await self._state.handle_join(ctx)
+    async def handle_join(self, msg: Message):
+        await self._state.handle_join(msg)
+
+    async def can_join(self, msg: Message):
+        return await self._state.can_join(msg)

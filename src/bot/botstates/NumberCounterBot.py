@@ -8,6 +8,7 @@ from src.bot.botstates.DefaultBot import DefaultBot
 from src.bot.botstates.TeamGameHandler import TeamGameHandler
 
 from src.bot.gameobservers.Subject import Subject
+from src.bot.TeamData import TeamData
 
 if TYPE_CHECKING:
     from src.bot.gameobservers.Observer import Observer
@@ -17,14 +18,14 @@ log = logging.getLogger(__name__)
 
 class NumberCounterBot(TeamGameHandler, BotState, Subject):
 
-    def __init__(self, target_number: int, num_teams: int):
-        super().__init__(num_teams=num_teams)
-
+    def __init__(self, target_number: int, team_data: TeamData):
+        super().__init__(team_data)
         if target_number <= 0:
             target_number = 1
-        self.target_number = target_number
 
-        self.team_numbers = [set() for _ in range(self.num_teams)]
+        self.target_number = target_number
+        self.winning_team_id: int = None
+        self.team_numbers = None
         self.won = False
         self.observers = []
         self.msg = None
@@ -39,18 +40,13 @@ class NumberCounterBot(TeamGameHandler, BotState, Subject):
         for observer in self.observers:
             await observer.update(self)
 
-    async def handle_join(self, msg: Message) -> None:
-        self.msg = msg
-        await super().handle_join(msg)
-        await self.notify()
-
     async def handle_event_message(self, msg: Message) -> None:
         self.msg = msg
 
         if not self.game_started:
             return
 
-        team_id = self.teams.get(msg.author.id)
+        team_id = self.team_data.teams.get(msg.author.id)
         if team_id is None:
             return
 
@@ -64,11 +60,20 @@ class NumberCounterBot(TeamGameHandler, BotState, Subject):
                     return
         await self.notify()
 
+    # TODO remove this
     def get_team_member_map(self):
-        return super().get_team_member_map()
+        return self.team_data.get_team_member_map()
+
+    async def game_start(self):
+        self.team_numbers = [set() for _ in range(self.team_data.num_teams)]
+        await super().game_start()
+        await self.notify()
 
     async def win(self, winning_team_id: int) -> None:
         self.won = True
         self.winning_team_id = winning_team_id
         self.context.transition_to(DefaultBot())
         await self.notify()
+
+    async def can_join(self, msg: Message) -> bool:
+        return await super().can_join(msg)

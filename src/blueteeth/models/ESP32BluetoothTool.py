@@ -10,13 +10,9 @@ def retry(func):
         try:
             return func(*args, **kwargs)
         except BluetoothError as err:
-            log.error("Error when calling bt cmd", err)
-            print(err)
-            print(args)
+            log.error("Error when calling bluetooth command.", err)
             args[0].connect_socket()
-            print("Bluetooth now connected! Attempting instruction.")
             return func(*args, **kwargs)
-
     return wrapper
 
 

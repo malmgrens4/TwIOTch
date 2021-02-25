@@ -1,6 +1,6 @@
 from contextlib import contextmanager
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import relationship, sessionmaker
+from sqlalchemy.orm import relationship, sessionmaker, scoped_session
 from sqlalchemy import create_engine, Column, Integer, String, Boolean, ForeignKey
 from sqlalchemy.ext.compiler import compiles
 from sqlalchemy.sql.expression import Insert
@@ -48,7 +48,7 @@ class TriviaOption(Base):
 engine = create_engine('sqlite:///twitch_db.db')
 Base.metadata.create_all(engine)
 session_factory = sessionmaker(bind=engine)
-
+Session = scoped_session(session_factory)
 
 @contextmanager
 def session_scope():
