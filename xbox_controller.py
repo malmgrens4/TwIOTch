@@ -50,15 +50,6 @@ def main():
                                 turning_left = False
                                 turning_right = False
 
-                if moving_forward:
-                    cam.forward(movement_ms)
-                if moving_backward:
-                    cam.backward(movement_ms)
-                if turning_left:
-                    cam.left(movement_ms)
-                if turning_right:
-                    cam.right(movement_ms)
-
             if moving_forward:
                 cam.forward(movement_ms)
             if moving_backward:
