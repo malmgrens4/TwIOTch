@@ -8,7 +8,7 @@ def main():
     ms = 10
 
     led_on = 0
-    js_threshold = 5000
+    js_threshold = 8000
     movement_ms = 4
     moving_forward = False
     moving_backward = False
@@ -45,19 +45,17 @@ def main():
                 else:
                     moving_backward = False
                     moving_forward = False
-                    moving_forward = False
-                    moving_backward = False
+                    turning_left = False
+                    turning_right = False
 
-                if moving_forward:
-                    cam.forward(movement_ms)
-                if moving_backward:
-                    cam.backward(movement_ms)
-                if turning_left:
-                    cam.left(movement_ms)
-                if turning_right:
-                    cam.right(movement_ms)
-
-
+            if moving_forward:
+                cam.forward(movement_ms)
+            if moving_backward:
+                cam.backward(movement_ms)
+            if turning_left:
+                cam.left(movement_ms)
+            if turning_right:
+                cam.right(movement_ms)
 
 
 if __name__ == '__main__':
