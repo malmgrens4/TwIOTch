@@ -27,7 +27,7 @@ def main():
                             cam.light_on()
                         led_on = not led_on
                 if event.ev_type == 'Absolute':
-                    if abs(event.state) > js_threshold:
+                    if abs(event.state):
                         if event.code == 'ABS_Y':
                             if event.state < 0:
                                 moving_forward = True
@@ -44,12 +44,6 @@ def main():
                                 turning_right = True
                                 turning_left = False
 
-                    else:
-                        moving_backward = False
-                        moving_forward = False
-                        turning_left = False
-                        turning_right = False
-
                 if moving_forward:
                     cam.forward(movement_ms)
                 if moving_backward:
@@ -58,6 +52,16 @@ def main():
                     cam.left(movement_ms)
                 if turning_right:
                     cam.right(movement_ms)
+
+            if moving_forward:
+                cam.forward(movement_ms)
+            if moving_backward:
+                cam.backward(movement_ms)
+            if turning_left:
+                cam.left(movement_ms)
+            if turning_right:
+                cam.right(movement_ms)
+
 
     except Exception as err:
         print(err)
