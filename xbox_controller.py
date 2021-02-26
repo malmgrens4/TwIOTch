@@ -1,28 +1,22 @@
 import signal
-from xbox360controller import Xbox360Controller
 from src.blueteeth.toolbox import toolbox
+from inputs import get_gamepad
 
 
 def main():
-    try:
-        cam = toolbox.get_camaro()
-        ms = 10
+    cam = toolbox.get_camaro()
+    ms = 10
 
-        def turn_left():
-            cam.left(ms)
+    def turn_left():
+        cam.left(ms)
 
-        def turn_right():
-            cam.right(ms)
+    def turn_right():
+        cam.right(ms)
 
-        with Xbox360Controller(0, axis_threshold=0.2) as controller:
-            controller.button_a.when_pressed = cam.light_on
-            controller.axis_l.when_moved = turn_left
-            controller.axis_r.when_moved = turn_right
-
-        signal.pause()
-
-    except KeyboardInterrupt:
-        pass
+    while 1:
+        events = get_gamepad()
+        for event in events:
+            print(event.ev_type, event.code, event.state)
 
 
 if __name__ == '__main__':

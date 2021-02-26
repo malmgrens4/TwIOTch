@@ -17,6 +17,7 @@ sqlalchemy = "*"
 asyncio = "*"
 typing-extensions = "*"
 requests = "*"
+inputs = "*"
 
 [requires]
 python_version = "3.9"
