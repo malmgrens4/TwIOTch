@@ -59,6 +59,7 @@ def main():
             if turning_right:
                 cam.right(movement_ms)
 
+            print("processing")
 
     except Exception as err:
         print(err)
