@@ -28,21 +28,27 @@ def main():
                         led_on = not led_on
                 if event.ev_type == 'Absolute':
                     if abs(event.state):
-                        if event.code == 'ABS_Y':
+                        if event.code == 'ABS_Y' and abs(event.state) > js_threshold:
                             if event.state < 0:
                                 moving_forward = True
                                 moving_backward = False
-                            else:
+                            elif event.state > 0 and event.state > js_threshold:
                                 moving_backward = True
                                 moving_forward = False
+                            else:
+                                moving_forward = False
+                                moving_backward = False
 
                         if event.code == 'ABS_RX':
-                            if event.state < 0:
+                            if event.state < 0 and abs(event.state) > js_threshold:
                                 turning_left = True
                                 turning_right = False
-                            else:
+                            elif event.state > 0 and event.state > js_threshold:
                                 turning_right = True
                                 turning_left = False
+                            else:
+                                turning_left = False
+                                turning_right = False
 
                 if moving_forward:
                     cam.forward(movement_ms)
