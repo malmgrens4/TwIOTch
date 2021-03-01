@@ -16,7 +16,7 @@ from src.bot.gameobservers.NumberGameScoreObserver import NumberGameScoreObserve
 from src.bot.db.schema import session_scope, Session, User, TriviaQuestion, TriviaOption
 from src.bot.botstates.TeamGameHandler import TeamGameHandler
 from src.bot.TeamData import TeamData
-from src.bot.commandhandlers import trivia
+from src.bot.commandhandlers import trivia, number_game
 
 config = configparser.ConfigParser()
 config.read('config.ini')
@@ -93,23 +93,7 @@ async def join_game(msg: Message):
 @bot.command(name='start_number_game')
 async def start_number_game(msg: Message):
     """Starts a game where teams compete to list every number between 1 and the target number"""
-    if not msg.author.is_mod:
-        return
-
-    args = parse_args(msg, ['target_number'])
-    target_number = int(args['target_number'])
-
-    number_counter_bot = NumberCounterBot(target_number=target_number, team_data=team_data)
-    number_counter_bot.attach(NumberGameChatObserver())
-    number_counter_bot.attach(NumberGameScoreObserver())
-
-    botState.transition_to(number_counter_bot)
-    await msg.channel.send("Type !joingame to join a team for number showdown!")
-    # sleep for 30 while players join
-    await asyncio.sleep(20)
-    await number_counter_bot.game_start()
-    await msg.channel\
-        .send(f"Number game started with {team_data.num_teams} teams. First to count to {target_number} wins!")
+    return await number_game.start_number_game(msg=msg, botState=botState, team_data=team_data)
 
 
 @bot.command(name='leaderboard')

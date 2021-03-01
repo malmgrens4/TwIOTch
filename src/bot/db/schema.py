@@ -50,6 +50,7 @@ Base.metadata.create_all(engine)
 session_factory = sessionmaker(bind=engine)
 Session = scoped_session(session_factory)
 
+
 @contextmanager
 def session_scope():
     """Provide a transactional scope around a series of operations."""

@@ -26,10 +26,12 @@ async def start_trivia(msg: Message, team_data: TeamData, botState: BotState):
     args = parse_args(msg, ['category'])
     category = args['category']
 
-    trivia_question, trivia_options = get_random_trivia(category)
-    if not trivia_question:
+    trivia_response = get_random_trivia(category)
+    if not trivia_response:
         await msg.channel.send("Failed to find any trivia questions. Try another category.")
+        return
 
+    trivia_question, trivia_options = trivia_response
     options_map = {}
     for i, option in enumerate(trivia_options):
         options_map[chr(i + 97)] = option.option
@@ -38,7 +40,7 @@ async def start_trivia(msg: Message, team_data: TeamData, botState: BotState):
 
     trivia_bot = TriviaBot(team_data=team_data,
                            question=trivia_question.question,
-                           options=trivia_options,
+                           options=options_map,
                            correct_responses=correct_responses,
                            msg=msg)
 
