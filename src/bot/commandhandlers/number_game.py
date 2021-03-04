@@ -1,5 +1,3 @@
-import asyncio
-
 from twitchio.dataclasses import Message
 from src.bot.bot import TeamData
 from src.bot.botstates.BotState import BotState
