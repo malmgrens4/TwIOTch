@@ -18,6 +18,7 @@ asyncio = "*"
 typing-extensions = "*"
 requests = "*"
 inputs = "*"
+coverage = "*"
 
 [requires]
 python_version = "3.9"

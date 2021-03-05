@@ -17,19 +17,22 @@ class TestTrivia:
     @pytest.mark.asyncio
     async def test_trivia_start(self):
         """Verify that start_trivia_bot is called"""
-
-        mocked_objects = {}
-        mocked_objects['WinGameChatObserver'] = DEFAULT
-        mocked_objects['TriviaChatObserver'] = DEFAULT
-        mocked_objects['TriviaAnswerTimerObserver'] = AsyncMock
-        mocked_objects['TriviaBot'] = DEFAULT
-        with patch.multiple('src.bot.commandhandlers.trivia', **mocked_objects, get_random_trivia=self.return_trivia_data) as values:
-            values['TriviaBot'].return_value = AsyncMock()
+        mocked_objects = {'WinGameChatObserver': DEFAULT,
+                          'TriviaChatObserver': DEFAULT,
+                          'TriviaAnswerTimerObserver': AsyncMock,
+                          'TriviaBot': DEFAULT}
+        with patch.multiple('src.bot.commandhandlers.trivia',
+                            **mocked_objects,
+                            get_random_trivia=self.return_trivia_data) as values:
+            trivia_bot_mock = AsyncMock()
+            trivia_bot_mock.attach = MagicMock()
+            values['TriviaBot'].return_value = trivia_bot_mock
             message = AsyncMock()
             message.content = "!start_trivia"
             message.author.is_mod = True
 
             botState = AsyncMock()
+            botState.transition_to = MagicMock()
 
             team_data = TeamData()
             team_data.teams = {1: 0}
@@ -46,6 +49,7 @@ class TestTrivia:
             message.author.is_mod = True
 
             botState = AsyncMock()
+            botState.transition_to = MagicMock()
 
             team_data = TeamData()
             team_data.teams = {1: 0}
@@ -64,14 +68,18 @@ class TestNumberGame:
         target_number = 20
         msg.content = "!start_number_game " + str(target_number)
         team_data = TeamData(2)
+
         botState = AsyncMock()
+        botState.transition_to = MagicMock()
 
         mocked_objects = {}
         mocked_objects['WinGameChatObserver'] = AsyncMock
         mocked_objects['NumberGameScoreObserver'] = DEFAULT
         mocked_objects['NumberCounterBot'] = DEFAULT
         with patch.multiple('src.bot.commandhandlers.number_game', **mocked_objects) as values:
-            values['NumberCounterBot'].return_value = AsyncMock()
+            number_counter_bot_mock = AsyncMock()
+            number_counter_bot_mock.attach = MagicMock()
+            values['NumberCounterBot'].return_value = number_counter_bot_mock
 
             await start_number_game(msg, team_data, botState)
 
