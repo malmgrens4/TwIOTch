@@ -67,7 +67,7 @@ class TestNumberGame:
         botState = AsyncMock()
 
         mocked_objects = {}
-        mocked_objects['NumberGameChatObserver'] = AsyncMock
+        mocked_objects['WinGameChatObserver'] = AsyncMock
         mocked_objects['NumberGameScoreObserver'] = DEFAULT
         mocked_objects['NumberCounterBot'] = DEFAULT
         with patch.multiple('src.bot.commandhandlers.number_game', **mocked_objects) as values:

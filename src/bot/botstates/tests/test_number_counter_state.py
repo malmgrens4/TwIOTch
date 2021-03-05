@@ -4,7 +4,7 @@ from unittest.mock import AsyncMock
 
 from src.bot.botstates.Context import Context as BotStateContext
 from src.bot.botstates.NumberCounterBot import NumberCounterBot
-
+from src.bot.TeamData import TeamData
 
 @pytest.mark.asyncio
 async def test_event_message_handling():
@@ -13,10 +13,11 @@ async def test_event_message_handling():
         then None is returned
     """
     user1_id = 1
-    number_counter = NumberCounterBot(num_teams=2, target_number=20)
-    # user 1 is on team 0
-    number_counter.teams = {1: 0}
+    team_data = TeamData(2)
+    team_data.teams = {user1_id: 0}
 
+    number_counter = NumberCounterBot(target_number=20, team_data=team_data)
+    # user 1 is on team 0
     mock_message_context = AsyncMock()
     mock_message_context.author.id = user1_id
     mock_message_context.content = "1"
@@ -30,11 +31,13 @@ async def test_event_message_handling():
     """
     target_number = 20
     num_teams = 4
-    number_counter = NumberCounterBot(num_teams=num_teams, target_number=target_number)
+    team_data = TeamData(4)
+    team_data.teams = {0: 0, 1: 1, 2: 2, 3: 3}
+
+    number_counter = NumberCounterBot(target_number=target_number, team_data=team_data)
     await number_counter.game_start()
 
     mock_message_context = AsyncMock()
-    number_counter.teams = {0: 0, 1: 1, 2: 2, 3: 3}
     number_counter.win = AsyncMock()
     bot_state = BotStateContext(number_counter)
     for i in range(target_number):
@@ -53,7 +56,7 @@ async def test_event_message_handling():
         when duplicates are sent 
         then win is not called
     """
-    number_counter = NumberCounterBot(num_teams=2, target_number=2)
+    number_counter = NumberCounterBot(target_number=2, team_data=team_data)
     await number_counter.game_start()
     number_counter.teams = {0: 0, 1: 1}
 

@@ -25,7 +25,9 @@ class NumberCounterBot(TeamGameHandler, BotState, Subject):
 
         self.target_number = target_number
         self.winning_team_id: int = None
-        self.team_numbers = None
+        self.team_numbers = {}
+        for i in range(0, team_data.num_teams):
+            self.team_numbers[i] = []
         self.won = False
         self.observers = []
         self.msg = None
@@ -59,6 +61,9 @@ class NumberCounterBot(TeamGameHandler, BotState, Subject):
                     await self.win(team_id)
                     return
         await self.notify()
+
+    async def handle_join(self, msg: Message) -> None:
+        return await super().handle_join(msg)
 
     # TODO remove this
     def get_team_member_map(self):

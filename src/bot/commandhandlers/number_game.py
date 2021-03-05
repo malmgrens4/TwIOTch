@@ -16,7 +16,7 @@ async def start_number_game(msg: Message, team_data: TeamData, botState: BotStat
     target_number = int(args['target_number'])
 
     number_counter_bot = NumberCounterBot(target_number=target_number, team_data=team_data)
-    number_counter_bot.attach(NumberGameChatObserver())
+    number_counter_bot.attach(WinGameChatObserver())
     number_counter_bot.attach(NumberGameScoreObserver())
 
     botState.transition_to(number_counter_bot)
