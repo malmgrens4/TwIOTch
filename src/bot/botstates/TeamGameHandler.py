@@ -16,6 +16,8 @@ class TeamGameHandler:
         num_teams: number of teams
         target_number: the value that defines the range users must count to
         """
+        self.winning_team_id = None
+        self.winning_team_ids = None
         self.team_data = team_data
         self.game_started = False
 

@@ -8,6 +8,7 @@ from src.bot.db.schema import session_scope, Session, TriviaQuestion, TriviaOpti
 from src.bot.botstates.TriviaBot import TriviaBot
 from src.bot.botstates.BotState import BotState
 from src.bot.TeamData import TeamData
+from src.bot.gameobservers.WinGameChatObserver import WinGameChatObserver
 
 
 async def categories(msg: Message):
@@ -43,9 +44,9 @@ async def start_trivia(msg: Message, team_data: TeamData, botState: BotState):
                            options=options_map,
                            correct_responses=correct_responses,
                            msg=msg)
-
     trivia_bot.attach(TriviaChatObserver())
     trivia_bot.attach(TriviaAnswerTimerObserver())
+    trivia_bot.attach(WinGameChatObserver())
     botState.transition_to(trivia_bot)
     await trivia_bot.game_start()
 

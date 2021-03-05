@@ -1,10 +1,10 @@
 from twitchio.dataclasses import Message
-from src.bot.bot import TeamData
+from src.bot.TeamData import TeamData
 from src.bot.botstates.BotState import BotState
 from src.bot.commandhandlers.utils import parse_args
 from src.bot.botstates.NumberCounterBot import NumberCounterBot
 from src.bot.gameobservers.NumberGameScoreObserver import NumberGameScoreObserver
-from src.bot.gameobservers.NumberGameChatObserver import NumberGameChatObserver
+from src.bot.gameobservers.WinGameChatObserver import WinGameChatObserver
 
 
 async def start_number_game(msg: Message, team_data: TeamData, botState: BotState):

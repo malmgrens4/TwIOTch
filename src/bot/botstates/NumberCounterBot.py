@@ -20,8 +20,8 @@ class NumberCounterBot(TeamGameHandler, BotState, Subject):
 
     def __init__(self, target_number: int, team_data: TeamData):
         super().__init__(team_data)
-        if target_number <= 0:
-            target_number = 1
+        if target_number < 0:
+            target_number = abs(target_number)
 
         self.target_number = target_number
         self.winning_team_id: int = None

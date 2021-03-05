@@ -1,5 +1,4 @@
 import os
-import asyncio
 
 import configparser
 import logging.config
@@ -8,13 +7,8 @@ from src.bot.botstates.DefaultBot import DefaultBot
 from src.blueteeth.toolbox.toolbox import get_phuelight
 from src.bot.botstates.Context import Context as BotStateContext
 from twitchio.dataclasses import Message
-from src.bot.botstates.NumberCounterBot import NumberCounterBot
-from src.bot.botstates.TriviaBot import TriviaBot
-from src.bot.gameobservers.NumberGameChatObserver import NumberGameChatObserver
-from src.bot.gameobservers.NumberGameScoreObserver import NumberGameScoreObserver
 
 from src.bot.db.schema import session_scope, Session, User, TriviaQuestion, TriviaOption
-from src.bot.botstates.TeamGameHandler import TeamGameHandler
 from src.bot.TeamData import TeamData
 from src.bot.commandhandlers import trivia, number_game
 

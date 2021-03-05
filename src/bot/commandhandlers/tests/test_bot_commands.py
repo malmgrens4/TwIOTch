@@ -4,6 +4,7 @@ from src.bot.TeamData import TeamData
 from src.bot.commandhandlers.trivia import start_trivia
 from src.bot.commandhandlers.number_game import start_number_game
 
+
 class TestTrivia:
     @staticmethod
     def return_trivia_data(self, category: str = None):
@@ -18,6 +19,7 @@ class TestTrivia:
         """Verify that start_trivia_bot is called"""
 
         mocked_objects = {}
+        mocked_objects['WinGameChatObserver'] = DEFAULT
         mocked_objects['TriviaChatObserver'] = DEFAULT
         mocked_objects['TriviaAnswerTimerObserver'] = AsyncMock
         mocked_objects['TriviaBot'] = DEFAULT
@@ -56,13 +58,14 @@ class TestTrivia:
 class TestNumberGame:
     @pytest.mark.asyncio
     async def test_start_number_game(self):
+        """test number game starts with valid start input"""
         msg = AsyncMock()
-        msg.author.is_mod = False
+        msg.author.is_mod = True
         target_number = 20
-        msg.content = "!start_number_game " + target_number
+        msg.content = "!start_number_game " + str(target_number)
         team_data = TeamData(2)
         botState = AsyncMock()
-        await start_number_game(msg, team_data, botState)
+
         mocked_objects = {}
         mocked_objects['NumberGameChatObserver'] = AsyncMock
         mocked_objects['NumberGameScoreObserver'] = DEFAULT
@@ -70,4 +73,6 @@ class TestNumberGame:
         with patch.multiple('src.bot.commandhandlers.number_game', **mocked_objects) as values:
             values['NumberCounterBot'].return_value = AsyncMock()
 
-        values['TriviaBot'].return_value.game_start.assert_called_once()
+            await start_number_game(msg, team_data, botState)
+
+            values['NumberCounterBot'].return_value.game_start.assert_called_once()

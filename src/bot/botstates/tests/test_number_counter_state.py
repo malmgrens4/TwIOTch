@@ -23,8 +23,6 @@ async def test_event_message_handling():
     await number_counter.handle_event_message(mock_message_context)
 
     assert len(number_counter.team_numbers[0]) == 0
-
-
     """
         when 4 teams are competing cycle through 1-target_number - 1 for each team
         then 1 team completes all numbers and the win method should be called with 
