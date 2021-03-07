@@ -8,9 +8,10 @@ from src.blueteeth.toolbox.toolbox import get_phuelight
 from src.bot.botstates.Context import Context as BotStateContext
 from twitchio.dataclasses import Message
 
-from src.bot.db.schema import session_scope, Session, User, TriviaQuestion, TriviaOption
+from src.bot.commandhandlers.utils import parse_args
+from src.bot.db.schema import session_scope, User
 from src.bot.TeamData import TeamData
-from src.bot.commandhandlers import trivia, number_game
+from src.bot.commandhandlers import trivia, number_game, battle_car
 
 config = configparser.ConfigParser()
 config.read('config.ini')
@@ -31,10 +32,6 @@ bot = commands.Bot(
     prefix=os.environ['BOT_PREFIX'],
     initial_channels=[os.environ['CHANNEL']]
 )
-
-
-
-
 
 @bot.event
 async def event_message(ctx: Message):
@@ -88,6 +85,18 @@ async def join_game(msg: Message):
 async def start_number_game(msg: Message):
     """Starts a game where teams compete to list every number between 1 and the target number"""
     return await number_game.start_number_game(msg=msg, botState=botState, team_data=team_data)
+
+
+@bot.command(name='start_battle_car')
+async def start_battle_car(msg: Message):
+    """Starts a game where teams compete to list every number between 1 and the target number"""
+    return await battle_car.start_battle_car(msg=msg, botState=botState, team_data=team_data)
+
+
+@bot.command(name='end_battle_car')
+async def end_battle_car(msg: Message):
+    """Starts a game where teams compete to list every number between 1 and the target number"""
+    return await battle_car.end_battle_car(msg=msg, botState=botState, team_data=team_data)
 
 
 @bot.command(name='leaderboard')

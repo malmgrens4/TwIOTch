@@ -10,27 +10,21 @@ from src.bot.botstates.TeamGameHandler import TeamGameHandler
 from src.bot.gameobservers.Subject import Subject
 from src.bot.TeamData import TeamData
 
+from src.blueteeth.toolbox.toolbox import get_camaro
+from src.blueteeth.toolbox.toolbox import get_needle
+from src.blueteeth.models.RCCar import RCCar
+
 if TYPE_CHECKING:
     from src.bot.gameobservers.Observer import Observer
 
 log = logging.getLogger(__name__)
 
 
-class NumberCounterBot(TeamGameHandler, BotState, Subject):
+class RCCarBot(TeamGameHandler, BotState, Subject):
 
-    def __init__(self, target_number: int, team_data: TeamData):
+    def __init__(self, team_data: TeamData):
+        self.team_bot_map = {0: get_needle(), 1: get_camaro()}
         super().__init__(team_data)
-        if target_number < 0:
-            target_number = abs(target_number)
-
-        self.target_number = target_number
-        self.winning_team_id: int = None
-        self.team_numbers = {}
-        for i in range(0, team_data.num_teams):
-            self.team_numbers[i] = []
-        self.won = False
-        self.observers = []
-        self.msg = None
 
     def attach(self, observer: Observer) -> None:
         self.observers.append(observer)
@@ -52,21 +46,52 @@ class NumberCounterBot(TeamGameHandler, BotState, Subject):
         if team_id is None:
             return
 
-        user_input_number = int(msg.content)
-        if 0 < user_input_number <= self.target_number:
-            if user_input_number not in self.team_numbers[team_id]:
-                self.team_numbers[team_id].add(user_input_number)
-                # check for win condition
-                if len(self.team_numbers[team_id]) == self.target_number:
-                    await self.win(team_id)
-                    return
+        #process request by team
+        args = msg.content.lower().split(' ')
+        direction = args[0]
+        steps = 1
+        if len(args) == 2:
+            try:
+                steps = min(1, max(int(args[1])), 5)
+            except ValueError:
+                steps = 1
+
+        duration = self.steps_to_duration(direction, steps)
+        self.execute_instruction(direction=direction, duration=duration, car=self.team_bot_map[team_id])
+
         await self.notify()
+
+    @staticmethod
+    def steps_to_duration(direction: str, steps: int):
+        """The instructions are recieved on a scale of 1 - 5.
+                This number is the multiplier to translate that to an appropriate
+                number of ms"""
+        if direction == 'l' or 'r':
+            return steps * 20
+        if direction == 'f' or 'b':
+            return steps * 50
+
+
+    @staticmethod
+    def execute_instruction(direction: str, duration: int, car: RCCar):
+        if direction == 'l':
+            car.left(duration)
+        if direction == 'r':
+            car.right(duration)
+        if direction == 'f':
+            car.forward(duration)
+        if direction == 'b':
+            car.backward(duration)
+
 
     async def handle_join(self, msg: Message) -> None:
         return await super().handle_join(msg)
 
+    # TODO remove this
+    def get_team_member_map(self):
+        return self.team_data.get_team_member_map()
+
     async def game_start(self):
-        self.team_numbers = [set() for _ in range(self.team_data.num_teams)]
         await super().game_start()
         await self.notify()
 
