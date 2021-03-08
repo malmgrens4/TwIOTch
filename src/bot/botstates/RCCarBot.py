@@ -24,6 +24,7 @@ class RCCarBot(TeamGameHandler, BotState, Subject):
 
     def __init__(self, team_data: TeamData, msg: Message):
         super().__init__(team_data)
+        self.won = False
         self.team_bot_map = {}
         self.msg = msg
         self.observers = []
@@ -54,7 +55,7 @@ class RCCarBot(TeamGameHandler, BotState, Subject):
         steps = 1
         if len(args) == 2:
             try:
-                steps = min(1, max(int(args[1])), 5)
+                steps = max(1, min(int(args[1]), 5))
             except ValueError:
                 steps = 1
 
@@ -69,9 +70,9 @@ class RCCarBot(TeamGameHandler, BotState, Subject):
                 This number is the multiplier to translate that to an appropriate
                 number of ms"""
         if direction == 'l' or 'r':
-            return steps * 20
+            return steps * 150
         if direction == 'f' or 'b':
-            return steps * 50
+            return steps * 200
 
 
     @staticmethod
@@ -95,7 +96,11 @@ class RCCarBot(TeamGameHandler, BotState, Subject):
     async def game_start(self):
         await super().game_start()
         try:
-            self.team_bot_map = {0: get_needle(), 1: get_camaro()}
+            needle = get_needle()
+            await self.msg.channel.send("Needle online.")
+            camaro = get_camaro()
+            await self.msg.channel.send("Camaro online.")
+            self.team_bot_map = {0: needle, 1: camaro}
         except Exception as err:
             await self.msg.channel.send("Please make sure all cars are turned on and in range and try again.")
             raise err
