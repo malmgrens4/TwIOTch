@@ -22,7 +22,7 @@ log = logging.getLogger(__name__)
 # teams (all twitch chat members that opt in)
 botState = BotStateContext(DefaultBot())
 
-team_data = TeamData()
+team_data = TeamData(2)
 
 bot = commands.Bot(
     # set up the bot
@@ -64,7 +64,7 @@ async def create_teams(msg: Message):
         return
 
     args = parse_args(msg, ['num_teams'])
-    team_data.reset(args['num_teams'])
+    team_data.reset(int(args['num_teams']))
     await msg.channel.send("Game session has started. Type !joingame to play!")
 
 
