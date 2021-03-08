@@ -30,4 +30,4 @@ async def end_battle_car(msg: Message, botState: BotState):
         await botState.context.transition_to(DefaultBot())
         return
 
-    await botState.context._state.win(int(args['winning_team_id']))
+    await botState._state.win(int(args['winning_team_id']))
