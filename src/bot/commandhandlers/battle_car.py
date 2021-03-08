@@ -2,6 +2,7 @@ from twitchio.dataclasses import Message
 from src.bot.TeamData import TeamData
 from src.bot.botstates.BotState import BotState
 from src.bot.botstates.RCCarBot import RCCarBot
+from src.bot.botstates.DefaultBot import DefaultBot
 from src.bot.commandhandlers.utils import parse_args
 
 
@@ -24,4 +25,9 @@ async def end_battle_car(msg: Message, botState: BotState):
         return
 
     args = parse_args(msg, ['winning_team_id'])
-    await botState.context.win(int(args['winning_team_id']))
+
+    if args['winning_team_id'] == None:
+        await botState.context.transition_to(DefaultBot())
+        return
+
+    await botState.context._state.win(int(args['winning_team_id']))
