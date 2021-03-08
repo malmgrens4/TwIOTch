@@ -22,9 +22,11 @@ log = logging.getLogger(__name__)
 
 class RCCarBot(TeamGameHandler, BotState, Subject):
 
-    def __init__(self, team_data: TeamData):
-        self.team_bot_map = {0: get_needle(), 1: get_camaro()}
+    def __init__(self, team_data: TeamData, msg: Message):
         super().__init__(team_data)
+        self.team_bot_map = {}
+        self.msg = msg
+        self.observers = []
 
     def attach(self, observer: Observer) -> None:
         self.observers.append(observer)
@@ -83,7 +85,6 @@ class RCCarBot(TeamGameHandler, BotState, Subject):
         if direction == 'b':
             car.backward(duration)
 
-
     async def handle_join(self, msg: Message) -> None:
         return await super().handle_join(msg)
 
@@ -93,6 +94,12 @@ class RCCarBot(TeamGameHandler, BotState, Subject):
 
     async def game_start(self):
         await super().game_start()
+        try:
+            self.team_bot_map = {0: get_needle(), 1: get_camaro()}
+        except Exception as err:
+            await self.msg.channel.send("Please make sure all cars are turned on and in range and try again.")
+            raise err
+
         await self.notify()
 
     async def win(self, winning_team_id: int) -> None:

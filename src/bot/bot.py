@@ -96,7 +96,7 @@ async def start_battle_car(msg: Message):
 @bot.command(name='end_battle_car')
 async def end_battle_car(msg: Message):
     """Starts a game where teams compete to list every number between 1 and the target number"""
-    return await battle_car.end_battle_car(msg=msg, botState=botState, team_data=team_data)
+    return await battle_car.end_battle_car(msg=msg, botState=botState)
 
 
 @bot.command(name='leaderboard')
