@@ -10,7 +10,7 @@ async def start_battle_car(msg: Message, team_data: TeamData, botState: BotState
     if not msg.author.is_mod:
         return
 
-    rc_car_bot = RCCarBot(team_data=team_data)
+    rc_car_bot = RCCarBot(team_data=team_data, msg=msg)
 
     botState.transition_to(rc_car_bot)
     await rc_car_bot.game_start()
