@@ -49,7 +49,7 @@ class RCCarBot(TeamGameHandler, BotState, Subject):
         if team_id is None:
             return
 
-        #process request by team
+        #process request by tea%$
         args = msg.content.lower().split(' ')
         direction = args[0]
         steps = 1

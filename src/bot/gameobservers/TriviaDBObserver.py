@@ -1,28 +1,31 @@
 from sqlalchemy.exc import DBAPIError, DisconnectionError, SQLAlchemyError
+import os
 import logging
-
+from typing import Dict
 from src.bot.gameobservers.Observer import Observer
-from src.bot.botstates.TriviaBot import TriviaBot
+from src.bot.botstates.TriviaBot import TriviaBot, TriviaResponse
 from src.bot.db.schema import session_scope, User
 
 log = logging.getLogger(__name__)
 
 
 class TriviaDBObserver(Observer):
+    trivia_max_response_time =  os.environ['TRIVIA_RESPONSE_TIME_SECONDS']
+
     def __init__(self):
         pass
 
     async def update(self, subject: TriviaBot) -> None:
         if subject.won:
-            correct_individuals = []
-            for team_answers in subject.team_answers:
-                correct_individuals.extend([k for k, v in team_answers.items if v in subject.correct_responses])
+            correct_user_responses: Dict[int, TriviaResponse] = []
+            for responses in subject.team_responses:
+                correct_user_responses.extend([{k, v} for k, v in responses.items if v.answer in subject.correct_options])
 
             try:
                 with session_scope() as session:
-                    winning_users = session.query(User).filter(User.id.in_(correct_individuals))
+                    winning_users = session.query(User).filter(User.id.in_(correct_user_responses.keys()))
                     for user in winning_users:
-                        user.trivia_wins += 1
+                        user.trivia_points += self.trivia_max_response_time - correct_user_responses[user.id]
 
             except DBAPIError as dp_api_err:
                 log.error(dp_api_err)

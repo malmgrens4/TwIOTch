@@ -19,7 +19,7 @@ class User(Base):
     __tablename__ = 'user'
     id = Column(Integer, primary_key=True)
     name = Column(String(250), nullable=False)
-    trivia_wins = Column(Integer, nullable=False, default=0)
+    trivia_points = Column(Integer, nullable=False, default=0)
     number_game_wins = Column(Integer, nullable=False, default=0)
 
 

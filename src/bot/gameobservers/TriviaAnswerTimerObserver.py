@@ -1,4 +1,5 @@
 from __future__ import annotations
+import os
 import asyncio
 import logging
 
@@ -12,11 +13,12 @@ class TriviaAnswerTimerObserver(Observer):
     def __init__(self):
         self.trivia_started = False
         self.task = None
+        self.max_response_time = os.environ['TRIVIA_RESPONSE_TIME_SECONDS']
         pass
 
     async def update(self, subject: TriviaBot) -> None:
         async def close_trivia():
-            await asyncio.sleep(30)
+            await asyncio.sleep(self.max_response_time)
             await subject.end_game()
 
         if subject.game_started and not self.task:
