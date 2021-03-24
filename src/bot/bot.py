@@ -9,7 +9,7 @@ from src.bot.botstates.Context import Context as BotStateContext
 from twitchio.dataclasses import Message
 
 from src.bot.commandhandlers.utils import parse_args
-from src.bot.db.schema import session_scope, User
+from src.bot.db.schema import session_scope, User, Team
 from src.bot.TeamData import TeamData
 from src.bot.commandhandlers import trivia, number_game, battle_car
 
@@ -77,8 +77,17 @@ async def join_game(msg: Message):
     if await botState.can_join(msg):
         await team_data.handle_join(msg)
         await botState.handle_join(msg)
+        team_id: int = team_data[msg.author.id]
+        team_name = get_team_name(team_id)
+        await msg.channel.send(f'${msg.author.name} has joined the ${team_name}')
     else:
         await msg.channel.send("You may not currently join the game.")
+
+
+def get_team_name(team_id: int):
+    with session_scope() as session:
+        team_name = session.query(Team).get(team_id)
+    return team_name
 
 
 @bot.command(name='start_number_game')
