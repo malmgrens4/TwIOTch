@@ -10,7 +10,7 @@ log = logging.getLogger(__name__)
 
 
 class TriviaDBObserver(Observer):
-    trivia_max_response_time =  os.environ['TRIVIA_RESPONSE_TIME_SECONDS']
+    trivia_max_response_time = os.environ['TRIVIA_RESPONSE_TIME_SECONDS'] * 1000
 
     def __init__(self):
         pass
@@ -25,7 +25,8 @@ class TriviaDBObserver(Observer):
                 with session_scope() as session:
                     winning_users = session.query(User).filter(User.id.in_(correct_user_responses.keys()))
                     for user in winning_users:
-                        user.trivia_points += self.trivia_max_response_time - correct_user_responses[user.id]
+                        user.trivia_points += \
+                            self.trivia_max_response_time - correct_user_responses[user.id].time_to_answer
 
             except DBAPIError as dp_api_err:
                 log.error(dp_api_err)

@@ -2,7 +2,7 @@ from unittest.mock import AsyncMock
 
 import pytest
 
-from src.bot.botstates.TriviaBot import TriviaBot
+from src.bot.botstates.TriviaBot import TriviaBot, TriviaResponse
 from src.bot.TeamData import TeamData
 
 @pytest.mark.asyncio
@@ -19,8 +19,10 @@ async def test_trivia_answers():
     trivia_bot = TriviaBot(team_data=team_data,
                            question="Test question?",
                            options={'a': 'Option A', 'b': 'Option B'},
-                           correct_responses=['a'],
+                           correct_options=['a'],
                            msg=mock_message)
+
+    trivia_bot.end_game = AsyncMock()
 
     trivia_bot.team_data.teams = {user1_id: 0, user2_id: 1}
 
@@ -28,10 +30,13 @@ async def test_trivia_answers():
     mock_message.content = "a"
 
     await trivia_bot.game_start()
-
     await trivia_bot.handle_event_message(mock_message)
+    assert trivia_bot.team_responses[0][user1_id].answer == "a"
 
-    assert trivia_bot.team_answers == [{user1_id: "a"}, {}]
+    mock_message.author.id = user2_id
+    mock_message.content = "b"
+    await trivia_bot.handle_event_message(mock_message)
+    assert trivia_bot.team_responses[1][user2_id].answer == "b"
 
 
 @pytest.mark.asyncio
@@ -47,7 +52,7 @@ async def test_all_users_answered():
     trivia_bot = TriviaBot(team_data=team_data,
                            question="Test question?",
                            options={'a': 'Option A', 'b': 'Option B'},
-                           correct_responses=['a'],
+                           correct_options=['a'],
                            msg=mock_message)
 
     trivia_bot.end_game = AsyncMock()
@@ -83,7 +88,7 @@ async def test_invalid_trivia_answer():
     trivia_bot = TriviaBot(team_data=team_data,
                            question="Test question?",
                            options={'a': 'Option A', 'b': 'Option B'},
-                           correct_responses=['a'],
+                           correct_options=['a'],
                            msg=mock_message)
 
     trivia_bot.team_data.teams = {user1_id: 0, user2_id: 1}
@@ -95,7 +100,7 @@ async def test_invalid_trivia_answer():
 
     await trivia_bot.handle_event_message(mock_message)
 
-    assert trivia_bot.team_answers == [{}, {}]
+    assert trivia_bot.team_responses == [{}, {}]
 
 
 @pytest.mark.asyncio
@@ -111,7 +116,7 @@ async def test_team_win():
     trivia_bot = TriviaBot(team_data=team_data,
                            question="Test question?",
                            options={'a': 'Option A', 'b': 'Option B'},
-                           correct_responses=['a'],
+                           correct_options=['a'],
                            msg=mock_message)
 
     trivia_bot.win = AsyncMock()
@@ -148,7 +153,7 @@ async def test_early_end():
     trivia_bot = TriviaBot(team_data=team_data,
                            question="Test question?",
                            options={'a': 'Option A', 'b': 'Option B'},
-                           correct_responses=['a'],
+                           correct_options=['a'],
                            msg=mock_message)
     trivia_bot.win = AsyncMock()
 
@@ -180,7 +185,7 @@ async def test_second_answer_ignored():
     trivia_bot = TriviaBot(team_data=team_data,
                            question="Test question?",
                            options={'a': 'Option A', 'b': 'Option B'},
-                           correct_responses=['a'],
+                           correct_options=['a'],
                            msg=mock_message)
     trivia_bot.win = AsyncMock()
 
@@ -197,7 +202,7 @@ async def test_second_answer_ignored():
     mock_message.content = "a"
 
     await trivia_bot.handle_event_message(mock_message)
-    assert trivia_bot.team_answers == [{user1_id: "b"}, {}]
+    assert trivia_bot.team_responses[0][user1_id].answer == 'b'
 
 
 @pytest.mark.asyncio
@@ -217,7 +222,7 @@ async def test_game_end_half_team_answers():
     trivia_bot = TriviaBot(team_data=team_data,
                            question="Test question?",
                            options={'a': 'Option A', 'b': 'Option B'},
-                           correct_responses=['a'],
+                           correct_options=['a'],
                            msg=mock_message)
     trivia_bot.win = AsyncMock()
 
