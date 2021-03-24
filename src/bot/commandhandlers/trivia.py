@@ -37,12 +37,12 @@ async def start_trivia(msg: Message, team_data: TeamData, botState: BotState):
     for i, option in enumerate(trivia_options):
         options_map[chr(i + 97)] = option.option
 
-    correct_responses = [chr(i + 97) for i, option in enumerate(trivia_options) if option.is_correct]
+    correct_options = [chr(i + 97) for i, option in enumerate(trivia_options) if option.is_correct]
 
     trivia_bot = TriviaBot(team_data=team_data,
                            question=trivia_question.question,
                            options=options_map,
-                           correct_responses=correct_responses,
+                           correct_options=correct_options,
                            msg=msg)
     trivia_bot.attach(TriviaChatObserver())
     trivia_bot.attach(TriviaAnswerTimerObserver())

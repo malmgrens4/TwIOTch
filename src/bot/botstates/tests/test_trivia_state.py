@@ -1,7 +1,7 @@
-from unittest.mock import AsyncMock
+from unittest.mock import AsyncMock, patch
 
 import pytest
-
+from datetime import datetime
 from src.bot.botstates.TriviaBot import TriviaBot, TriviaResponse
 from src.bot.TeamData import TeamData
 
@@ -248,4 +248,45 @@ async def test_game_end_half_team_answers():
     await trivia_bot.handle_event_message(mock_message)
 
     trivia_bot.win.assert_called_once_with([0])
+
+# @patch('datetime.utcnow')
+# @pytest.mark.asyncio
+# async def test_time_to_respond():
+#     """
+#     make sure a time is attached to a users answer
+#     """
+#     user1_id = 1
+#     user2_id = 2
+#     user3_id = 3
+#     mock_message = AsyncMock()
+#     team_data = TeamData(2)
+#     trivia_bot = TriviaBot(team_data=team_data,
+#                            question="Test question?",
+#                            options={'a': 'Option A', 'b': 'Option B'},
+#                            correct_options=['a'],
+#                            msg=mock_message)
+#     trivia_bot.win = AsyncMock()
+#
+#     trivia_bot.team_data.teams = {user1_id: 0, user2_id: 1, user3_id: 0}
+#
+#     await trivia_bot.game_start()
+#
+#     mock_message.author.id = user1_id
+#     mock_message.content = "a"
+#
+#     await trivia_bot.handle_event_message(mock_message)
+#
+#     mock_message.author.id = user2_id
+#     mock_message.content = "b"
+#
+#     await trivia_bot.handle_event_message(mock_message)
+#
+#     trivia_bot.win.assert_not_called()
+#
+#     mock_message.author.id = user3_id
+#     mock_message.content = "b"
+#
+#     await trivia_bot.handle_event_message(mock_message)
+#
+#     trivia_bot.win.assert_called_once_with([0])
 
