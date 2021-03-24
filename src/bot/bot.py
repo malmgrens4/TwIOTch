@@ -77,7 +77,7 @@ async def join_game(msg: Message):
     if await botState.can_join(msg):
         await team_data.handle_join(msg)
         await botState.handle_join(msg)
-        team_id: int = team_data[msg.author.id]
+        team_id: int = team_data.teams[msg.author.id]
         team_name = get_team_name(team_id)
         await msg.channel.send(f'${msg.author.name} has joined the ${team_name}')
     else:
