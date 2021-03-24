@@ -79,14 +79,14 @@ async def join_game(msg: Message):
         await botState.handle_join(msg)
         team_id: int = team_data.teams[msg.author.id]
         team_name = get_team_name(team_id)
-        await msg.channel.send(f'${msg.author.name} has joined the ${team_name}')
+        await msg.channel.send(f'{msg.author.name} has joined the {team_name}')
     else:
         await msg.channel.send("You may not currently join the game.")
 
 
 def get_team_name(team_id: int):
     with session_scope() as session:
-        team_name = session.query(Team).get(team_id)
+        team_name = session.query(Team).get(team_id + 1)
     return team_name
 
 
