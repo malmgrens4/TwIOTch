@@ -86,7 +86,7 @@ async def join_game(msg: Message):
 
 def get_team_name(team_id: int):
     with session_scope() as session:
-        team_name = session.query(Team).get(team_id + 1)
+        team_name = session.query(Team).get(team_id + 1).name
     return team_name
 
 
@@ -122,10 +122,14 @@ async def leaderboard(msg: Message):
         if game_name == 'number':
             leaderboard_query = session.query(User).order_by(User.number_game_wins.desc()).limit(10).all()
         else:
-            leaderboard_query = session.query(User).order_by(User.trivia_wins.desc()).limit(10).all()
+            leaderboard_query = session.query(User).order_by(User.trivia_points.desc()).limit(10).all()
 
         for i, user in enumerate(leaderboard_query):
-            await msg.channel.send(f"{i + 1}. {user.name}")
+            if game_name == 'number':
+                points = user.number_game_wins
+            else:
+                points = user.trivia_points
+            await msg.channel.send(f"{i + 1}. {user.name} {points}")
 
 
 @bot.command(name='categories')

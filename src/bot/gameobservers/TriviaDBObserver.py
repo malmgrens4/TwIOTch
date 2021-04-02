@@ -10,16 +10,18 @@ log = logging.getLogger(__name__)
 
 
 class TriviaDBObserver(Observer):
-    trivia_max_response_time = os.environ['TRIVIA_RESPONSE_TIME_SECONDS'] * 1000
+    trivia_max_response_time = int(os.environ['TRIVIA_RESPONSE_TIME_SECONDS']) * 1000
 
     def __init__(self):
         pass
 
     async def update(self, subject: TriviaBot) -> None:
         if subject.won:
-            correct_user_responses: Dict[int, TriviaResponse] = []
+            correct_user_responses: Dict[int, TriviaResponse] = {}
             for responses in subject.team_responses:
-                correct_user_responses.extend([{k, v} for k, v in responses.items if v.answer in subject.correct_options])
+                for k, v in responses.items():
+                    if v.answer in subject.correct_options:
+                        correct_user_responses[k] = v
 
             try:
                 with session_scope() as session:

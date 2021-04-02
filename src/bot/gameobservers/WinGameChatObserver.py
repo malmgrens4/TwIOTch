@@ -25,7 +25,6 @@ class WinGameChatObserver(Observer):
                 for winner_id in subject.team_data.get_team_member_map()[team_id]:
                     winning_ids.append(winner_id)
 
-        if subject.won:
             if len(winning_ids) == 0:
                 return
             try:
@@ -46,11 +45,11 @@ class WinGameChatObserver(Observer):
     @staticmethod
     def format_winner_list(winning_ids: [str]):
         if len(winning_ids) == 1:
-            win_annoncement = winning_ids[0] + "wins!"
+            win_annoncement = winning_ids[0] + " wins!"
         elif len(winning_ids) == 2:
             win_annoncement = f"{winning_ids[0]} and {winning_ids[1]} win!"
         else:
-            win_annoncement = ", ".join(winning_ids[0::-1]) + ", and " + str(winning_ids[-1]) + "win!"
+            win_annoncement = ", ".join(winning_ids[0::-1]) + ", and " + str(winning_ids[-1]) + " win!"
 
         return win_annoncement
 

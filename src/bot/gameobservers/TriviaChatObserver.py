@@ -20,4 +20,4 @@ class TriviaChatObserver(Observer):
                 await subject.msg.channel.send("%s: %s" % (key, value))
 
         if subject.won:
-            await subject.msg.channel.send("The correct answers were: %s" % ", ".join(subject.correct_responses))
+            await subject.msg.channel.send("The correct answers were: %s" % ", ".join(subject.correct_options))
