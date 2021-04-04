@@ -43,8 +43,11 @@ async def start_trivia(msg: Message, team_data: TeamData, botState: BotState):
         await msg.channel.send("The teams have no players. Use !joingame to participate.")
         return
 
-    args = parse_args(msg, ['category'])
-    category = args['category']
+    args = msg.content.split()
+    category = None
+
+    if len(args) >= 2:
+        category = "".join(args[1:]).replace('"', '')
 
     trivia_response = get_random_trivia(category)
     if not trivia_response:
@@ -75,7 +78,7 @@ def get_random_trivia(category: str = None) -> tuple[TriviaQuestion, [TriviaOpti
     session = Session()
     question_query: Query = session.query(TriviaQuestion)
     if category:
-        question_query: Query = question_query.filter(TriviaQuestion.category.contains(category))
+        question_query: Query = question_query.filter(func.replace(TriviaQuestion.category, ' ', '').contains(category))
 
     question_row: TriviaQuestion = question_query.order_by(func.random()).first()
 
