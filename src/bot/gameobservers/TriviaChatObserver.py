@@ -1,10 +1,7 @@
-from __future__ import annotations
 import logging
 
 from src.bot.gameobservers.Observer import Observer
 from src.bot.botstates.TriviaBot import TriviaBot
-
-log = logging.getLogger(__name__)
 
 
 class TriviaChatObserver(Observer):
@@ -20,4 +17,4 @@ class TriviaChatObserver(Observer):
                 await subject.msg.channel.send("%s: %s" % (key, value))
 
         if subject.won:
-            await subject.msg.channel.send("The correct answers were: %s" % ", ".join(subject.correct_options))
+            await subject.msg.channel.send("Correct answers: %s" % ", ".join(subject.correct_options))

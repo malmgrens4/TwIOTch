@@ -1,7 +1,3 @@
-import asyncio
-
-from collections.abc import Callable
-from typing import Dict
 from src.bot.TeamData import TeamData
 
 from twitchio.dataclasses import Message

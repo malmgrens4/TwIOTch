@@ -1,7 +1,5 @@
 import os
-
-import configparser
-import logging.config
+import logging
 from twitchio.ext import commands
 from src.bot.botstates.DefaultBot import DefaultBot
 from src.blueteeth.toolbox.toolbox import get_phuelight
@@ -12,12 +10,6 @@ from src.bot.commandhandlers.utils import parse_args
 from src.bot.db.schema import session_scope, User, Team
 from src.bot.TeamData import TeamData
 from src.bot.commandhandlers import trivia, number_game, battle_car
-
-config = configparser.ConfigParser()
-config.read('config.ini')
-
-log = logging.getLogger(__name__)
-
 # we need a game context with
 # teams (all twitch chat members that opt in)
 botState = BotStateContext(DefaultBot())
@@ -32,6 +24,7 @@ bot = commands.Bot(
     prefix=os.environ['BOT_PREFIX'],
     initial_channels=[os.environ['CHANNEL']]
 )
+
 
 @bot.event
 async def event_message(ctx: Message):

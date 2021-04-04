@@ -1,3 +1,5 @@
+import logging
+import random
 from twitchio.dataclasses import Message
 from sqlalchemy.orm.query import Query
 from sqlalchemy.sql.expression import func
@@ -11,18 +13,34 @@ from src.bot.TeamData import TeamData
 from src.bot.gameobservers.WinGameChatObserver import WinGameChatObserver
 from src.bot.gameobservers.TriviaDBObserver import TriviaDBObserver
 
+max_message_length = 500
+
 
 async def categories(msg: Message):
     with session_scope() as session:
-
         category_query = session.query(TriviaQuestion.category).distinct().all()
+        categories_joined: str = " | ".join([row[0] for row in category_query])
+        if categories_joined:
+            logging.error("No categories. Database trivia may need to be populated.")
+        category_section: str = categories_joined[0]
+        for i in range(1, len(categories_joined)):
+            # TODO make this more generic for all messages
+            if i % max_message_length == 0:
+                await msg.channel.send(category_section)
+                category_section = ""
 
-        for row in category_query:
-            await msg.channel.send("%s" % row[0])
+            category_section += categories_joined[i]
+
+        if category_section != "":
+            await msg.channel.send(category_section)
 
 
 async def start_trivia(msg: Message, team_data: TeamData, botState: BotState):
     if not msg.author.is_mod:
+        return
+
+    if len(team_data.teams) == 0:
+        await msg.channel.send("The teams have no players. Use !joingame to participate.")
         return
 
     args = parse_args(msg, ['category'])
@@ -62,4 +80,5 @@ def get_random_trivia(category: str = None) -> tuple[TriviaQuestion, [TriviaOpti
     question_row: TriviaQuestion = question_query.order_by(func.random()).first()
 
     options = session.query(TriviaOption).filter(TriviaOption.question_id == question_row.id).all()
+    random.shuffle(options)
     return question_row, options

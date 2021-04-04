@@ -6,8 +6,6 @@ from src.bot.gameobservers.Observer import Observer
 from src.bot.botstates.TriviaBot import TriviaBot, TriviaResponse
 from src.bot.db.schema import session_scope, User
 
-log = logging.getLogger(__name__)
-
 
 class TriviaDBObserver(Observer):
     trivia_max_response_time = int(os.environ['TRIVIA_RESPONSE_TIME_SECONDS']) * 1000
@@ -31,10 +29,10 @@ class TriviaDBObserver(Observer):
                             self.trivia_max_response_time - correct_user_responses[user.id].time_to_answer
 
             except DBAPIError as dp_api_err:
-                log.error(dp_api_err)
+                logging.error(dp_api_err)
             except DisconnectionError as dis_err:
-                log.error(dis_err)
+                logging.error(dis_err)
             except SQLAlchemyError as sql_err:
-                log.error(sql_err)
+                logging.error(sql_err)
             except IndexError as index_err:
-                log.error(index_err)
+                logging.error(index_err)

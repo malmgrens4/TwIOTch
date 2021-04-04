@@ -13,7 +13,6 @@ from src.bot.TeamData import TeamData
 if TYPE_CHECKING:
     from src.bot.gameobservers.Observer import Observer
 
-log = logging.getLogger(__name__)
 
 
 class NumberCounterBot(TeamGameHandler, BotState, Subject):

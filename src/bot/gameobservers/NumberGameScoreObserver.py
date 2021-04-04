@@ -5,8 +5,6 @@ from src.bot.gameobservers.Observer import Observer
 from src.bot.botstates.NumberCounterBot import NumberCounterBot
 from src.bot.db.schema import session_scope, User
 
-log = logging.getLogger(__name__)
-
 
 class NumberGameScoreObserver(Observer):
     def __init__(self):
@@ -22,10 +20,10 @@ class NumberGameScoreObserver(Observer):
                         user.number_game_wins += 1
 
             except DBAPIError as dp_api_err:
-                log.error(dp_api_err)
+                logging.error(dp_api_err)
             except DisconnectionError as dis_err:
-                log.error(dis_err)
+                logging.error(dis_err)
             except SQLAlchemyError as sql_err:
-                log.error(sql_err)
+                logging.error(sql_err)
             except IndexError as index_err:
-                log.error(index_err)
+                logging.error(index_err)

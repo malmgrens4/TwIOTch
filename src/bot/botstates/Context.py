@@ -3,8 +3,6 @@ from twitchio.dataclasses import Message
 
 from src.bot.botstates import BotState
 
-log = logging.getLogger(__name__)
-
 
 class Context:
 
@@ -14,7 +12,7 @@ class Context:
         self.transition_to(state)
 
     def transition_to(self, state: BotState):
-        log.debug(f"Context: Transition to {type(state).__name__}")
+        logging.debug(f"Context: Transition to {type(state).__name__}")
         self._state = state
         self._state.context = self
 

@@ -6,8 +6,6 @@ from src.bot.gameobservers.Observer import Observer
 from src.bot.botstates.TeamGameHandler import TeamGameHandler
 from src.bot.db.schema import session_scope, User, Team
 
-log = logging.getLogger(__name__)
-
 
 class WinGameChatObserver(Observer):
     def __init__(self):
@@ -31,13 +29,13 @@ class WinGameChatObserver(Observer):
                 winning_user_names = self.get_usernames(winning_ids)
                 winning_team_names = self.get_team_names(winning_team_ids)
             except DBAPIError as dp_api_err:
-                log.error(dp_api_err)
+                logging.error(dp_api_err)
             except DisconnectionError as dis_err:
-                log.error(dis_err)
+                logging.error(dis_err)
             except SQLAlchemyError as sql_err:
-                log.error(sql_err)
+                logging.error(sql_err)
             except IndexError as index_err:
-                log.error(index_err)
+                logging.error(index_err)
 
             await subject.msg.channel.send(self.format_winner_list(winning_team_names))
             await subject.msg.channel.send(self.format_winner_list(winning_user_names))

@@ -6,8 +6,6 @@ config = configparser.ConfigParser()
 config.read('config.ini')
 
 logging.config.fileConfig('config.ini')
-log = logging.getLogger()
-log.setLevel(logging.DEBUG)
 
 if __name__ == '__main__':
     bot.run()

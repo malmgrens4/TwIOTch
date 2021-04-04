@@ -33,5 +33,5 @@ def get_needle():
 def get_balloon_box():
     global balloon_box
     if balloon_box is None:
-        balloon_box = BalloonBox(os.environ['BALLOON_BOX_MAC'])
+        balloon_box = (BalloonBox.environ['BALLOON_BOX_MAC'])
     return balloon_box
