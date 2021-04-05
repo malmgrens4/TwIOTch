@@ -3,6 +3,7 @@ from src.bot.TeamData import TeamData
 from src.bot.botstates.BotState import BotState
 from src.bot.commandhandlers.utils import parse_args
 from src.bot.botstates.NumberCounterBot import NumberCounterBot
+from src.bot.gameobservers.BalloonBoxObserver import BalloonBoxTeamObserver
 from src.bot.gameobservers.NumberGameScoreObserver import NumberGameScoreObserver
 from src.bot.gameobservers.WinGameChatObserver import WinGameChatObserver
 
@@ -18,6 +19,7 @@ async def start_number_game(msg: Message, team_data: TeamData, botState: BotStat
     number_counter_bot = NumberCounterBot(target_number=target_number, team_data=team_data)
     number_counter_bot.attach(WinGameChatObserver())
     number_counter_bot.attach(NumberGameScoreObserver())
+    number_counter_bot.attach(BalloonBoxTeamObserver())
 
     botState.transition_to(number_counter_bot)
     await number_counter_bot.game_start()

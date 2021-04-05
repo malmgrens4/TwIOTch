@@ -3,7 +3,7 @@ import random
 from twitchio.dataclasses import Message
 from sqlalchemy.orm.query import Query
 from sqlalchemy.sql.expression import func
-from src.bot.commandhandlers.utils import parse_args
+from src.bot.gameobservers.BalloonBoxObserver import BalloonBoxTeamObserver
 from src.bot.gameobservers.TriviaChatObserver import TriviaChatObserver
 from src.bot.gameobservers.TriviaAnswerTimerObserver import TriviaAnswerTimerObserver
 from src.bot.db.schema import session_scope, Session, TriviaQuestion, TriviaOption
@@ -70,6 +70,7 @@ async def start_trivia(msg: Message, team_data: TeamData, botState: BotState):
     trivia_bot.attach(TriviaAnswerTimerObserver())
     trivia_bot.attach(TriviaDBObserver())
     trivia_bot.attach(WinGameChatObserver())
+    trivia_bot.attach(BalloonBoxTeamObserver())
     botState.transition_to(trivia_bot)
     await trivia_bot.game_start()
 
