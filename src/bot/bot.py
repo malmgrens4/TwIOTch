@@ -1,5 +1,6 @@
 import os
 import logging
+from asyncio import sleep
 from twitchio.ext import commands
 from src.bot.botstates.DefaultBot import DefaultBot
 from src.blueteeth.toolbox.toolbox import get_phuelight
@@ -49,6 +50,26 @@ async def event_ready():
     print(f"{os.environ['BOT_NICK']} is online now!")
     ws = bot._ws  # this is only needed to send messages within event_ready
     await ws.send_privmsg(os.environ['CHANNEL'], f"/me has arrived.")
+
+
+@bot.command(name='start_trivia_rounds', aliases=['triviarounds', 'rounds'])
+async def start_trivia_rounds(msg: Message):
+    if not msg.author.is_mod:
+        return
+    args = parse_args(msg, ['num_rounds', 'category'])
+    if args['num_rounds'] is None:
+        await msg.channel.send("Specify a number of rounds.")
+        return
+    num_rounds = int(args['num_rounds'])
+    category = args['category']
+    if not args['category']:
+        category = ''
+    msg.content = f'!start_trivia {category}'
+    for i in range(0, num_rounds):
+        await trivia.start_trivia(msg, team_data, botState)
+        await sleep(300)
+
+    await msg.channel.send("Thank you for playing!")
 
 
 @bot.command(name='create_teams', aliases=['teams', 'resetteams'])
@@ -127,6 +148,7 @@ async def leaderboard(msg: Message):
 async def categories(msg: Message):
     """Lists categories for trivia."""
     return await trivia.categories(msg)
+
 
 @bot.command(name='start_trivia', aliases=['trivia'])
 async def start_trivia(msg: Message):
