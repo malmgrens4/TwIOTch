@@ -73,6 +73,7 @@ async def start_trivia(msg: Message, team_data: TeamData, botState: BotState):
     trivia_bot.attach(BalloonBoxTeamObserver())
     botState.transition_to(trivia_bot)
     await trivia_bot.game_start()
+    return
 
 
 def get_random_trivia(category: str = None) -> tuple[TriviaQuestion, [TriviaOption]]:

@@ -56,18 +56,19 @@ async def event_ready():
 async def start_trivia_rounds(msg: Message):
     if not msg.author.is_mod:
         return
-    args = parse_args(msg, ['num_rounds', 'category'])
+    args = parse_args(msg, ['num_rounds', 'wait_interval', 'category'])
     if args['num_rounds'] is None:
         await msg.channel.send("Specify a number of rounds.")
         return
     num_rounds = int(args['num_rounds'])
+    wait_interval = int(args['wait_interval'])
     category = args['category']
     if not args['category']:
         category = ''
     msg.content = f'!start_trivia {category}'
-    for i in range(0, num_rounds):
+    for i in range(0, num_rounds + 1):
         await trivia.start_trivia(msg, team_data, botState)
-        await sleep(300)
+        await sleep(wait_interval * 60)
 
     await msg.channel.send("Thank you for playing!")
 

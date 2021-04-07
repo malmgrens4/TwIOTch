@@ -70,7 +70,7 @@ class TriviaBot(TeamGameHandler, BotState, Subject):
         if msg.author.id in self.team_responses[team_id]:
             return
 
-        user_input = msg.content
+        user_input = msg.content.lower()
         if user_input in self.options:
             time_elapsed = int((datetime.utcnow() - self.game_start_time).total_seconds() * 1000)
             self.team_responses[team_id][msg.author.id] = TriviaResponse(time_to_answer=time_elapsed, answer=user_input)
