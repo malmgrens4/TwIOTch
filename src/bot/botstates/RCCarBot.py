@@ -17,7 +17,7 @@ from src.blueteeth.models.RCCar import RCCar
 if TYPE_CHECKING:
     from src.bot.gameobservers.Observer import Observer
 
-log = logging.getLogger(__name__)
+
 
 
 class RCCarBot(TeamGameHandler, BotState, Subject):

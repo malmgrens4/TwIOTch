@@ -19,6 +19,7 @@ typing-extensions = "*"
 requests = "*"
 inputs = "*"
 coverage = "*"
+argparse = "*"
 
 [requires]
 python_version = "3.9"

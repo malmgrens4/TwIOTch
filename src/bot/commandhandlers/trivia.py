@@ -1,9 +1,12 @@
 import logging
 import random
+from collections import Callable
+
 from twitchio.dataclasses import Message
 from sqlalchemy.orm.query import Query
 from sqlalchemy.sql.expression import func
 from src.bot.gameobservers.BalloonBoxObserver import BalloonBoxTeamObserver
+from src.bot.gameobservers.RoundsObserver import RoundsObserver
 from src.bot.gameobservers.TriviaChatObserver import TriviaChatObserver
 from src.bot.gameobservers.TriviaAnswerTimerObserver import TriviaAnswerTimerObserver
 from src.bot.db.schema import session_scope, Session, TriviaQuestion, TriviaOption
@@ -35,23 +38,16 @@ async def categories(msg: Message):
             await msg.channel.send(category_section)
 
 
-async def start_trivia(msg: Message, team_data: TeamData, botState: BotState):
-    if not msg.author.is_mod:
-        return
-
+async def start_trivia(send_message: Callable[[str]], category: str, team_data: TeamData, botState: BotState):
     if len(team_data.teams) == 0:
-        await msg.channel.send("The teams have no players. Use !joingame to participate.")
+        await send_message("The teams have no players. Use !joingame to participate.")
         return
 
-    args = msg.content.split()
-    category = None
 
-    if len(args) >= 2:
-        category = "".join(args[1:]).replace('"', '')
 
     trivia_response = get_random_trivia(category)
     if not trivia_response:
-        await msg.channel.send("Failed to find any trivia questions. Try another category.")
+        await send_message("Failed to find any trivia questions. Try another category.")
         return
 
     trivia_question, trivia_options = trivia_response
@@ -65,12 +61,13 @@ async def start_trivia(msg: Message, team_data: TeamData, botState: BotState):
                            question=trivia_question.question,
                            options=options_map,
                            correct_options=correct_options,
-                           msg=msg)
+                           send_message=send_message)
     trivia_bot.attach(TriviaChatObserver())
     trivia_bot.attach(TriviaAnswerTimerObserver())
     trivia_bot.attach(TriviaDBObserver())
     trivia_bot.attach(WinGameChatObserver())
-    trivia_bot.attach(BalloonBoxTeamObserver())
+    # trivia_bot.attach(BalloonBoxTeamObserver())
+    trivia_bot.attach(RoundsObserver())
     botState.transition_to(trivia_bot)
     await trivia_bot.game_start()
     return

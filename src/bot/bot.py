@@ -2,11 +2,14 @@ import os
 import logging
 from asyncio import sleep
 from twitchio.ext import commands
+
+from src.bot.RoundsManager import RoundsQueue
 from src.bot.botstates.DefaultBot import DefaultBot
 from src.blueteeth.toolbox.toolbox import get_phuelight
 from src.bot.botstates.Context import Context as BotStateContext
 from twitchio.dataclasses import Message
 
+from src.bot.botstates.RoundsBot import RoundsBot
 from src.bot.commandhandlers.utils import parse_args
 from src.bot.db.schema import session_scope, User, Team
 from src.bot.TeamData import TeamData
@@ -16,6 +19,7 @@ from src.bot.commandhandlers import trivia, number_game, battle_car
 botState = BotStateContext(DefaultBot())
 
 team_data = TeamData(2)
+rounds_queue = RoundsQueue(time_between_rounds=30)
 
 bot = commands.Bot(
     # set up the bot
@@ -52,25 +56,9 @@ async def event_ready():
     await ws.send_privmsg(os.environ['CHANNEL'], f"/me has arrived.")
 
 
-@bot.command(name='start_trivia_rounds', aliases=['triviarounds', 'rounds'])
-async def start_trivia_rounds(msg: Message):
-    if not msg.author.is_mod:
-        return
-    args = parse_args(msg, ['num_rounds', 'wait_interval', 'category'])
-    if args['num_rounds'] is None:
-        await msg.channel.send("Specify a number of rounds.")
-        return
-    num_rounds = int(args['num_rounds'])
-    wait_interval = int(args['wait_interval'])
-    category = args['category']
-    if not args['category']:
-        category = ''
-    msg.content = f'!start_trivia {category}'
-    for i in range(0, num_rounds + 1):
-        await trivia.start_trivia(msg, team_data, botState)
-        await sleep(wait_interval * 60)
-
-    await msg.channel.send("Thank you for playing!")
+@bot.command(name='rounds')
+async def rounds(msg: Message):
+    botState.transition_to(RoundsBot(rounds_queue=rounds_queue, team_data=team_data))
 
 
 @bot.command(name='create_teams', aliases=['teams', 'resetteams'])
@@ -108,7 +96,12 @@ def get_team_name(team_id: int):
 @bot.command(name='start_number_game')
 async def start_number_game(msg: Message):
     """Starts a game where teams compete to list every number between 1 and the target number"""
-    return await number_game.start_number_game(msg=msg, botState=botState, team_data=team_data)
+    if not msg.author.is_mod:
+        return
+
+    args = parse_args(msg, ['target_number'])
+    target_number = int(args['target_number'])
+    return await number_game.start_number_game(send_message=msg.channel.send, target_number=target_number, botState=botState, team_data=team_data)
 
 
 @bot.command(name='start_battle_car')
@@ -154,7 +147,14 @@ async def categories(msg: Message):
 @bot.command(name='start_trivia', aliases=['trivia'])
 async def start_trivia(msg: Message):
     """Starts a game of trivia. A category may be specified."""
-    return await trivia.start_trivia(msg=msg, botState=botState, team_data=team_data)
+
+    args = msg.content.split()
+    category = None
+
+    if len(args) >= 2:
+        category = "".join(args[1:]).replace('"', '')
+
+    return await trivia.start_trivia(msg=msg.channel.send, category=category, botState=botState, team_data=team_data)
 
 
 @bot.command(name='help')

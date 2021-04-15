@@ -27,4 +27,4 @@ class TestNumberGameObservers:
         winGameChatObserver.get_usernames.return_value = team_names
 
         await winGameChatObserver.update(mock_subject)
-        mock_subject.msg.channel.send.assert_called()
+        mock_subject.send_message.assert_called()

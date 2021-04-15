@@ -12,9 +12,9 @@ class TriviaChatObserver(Observer):
 
         if not self.question_asked and subject.game_started:
             self.question_asked = True
-            await subject.msg.channel.send("Question: %s" % subject.question)
+            await subject.send_message("Question: %s" % subject.question)
             for key, value in subject.options.items():
-                await subject.msg.channel.send("%s: %s" % (key, value))
+                await subject.send_message("%s: %s" % (key, value))
 
         if subject.won:
-            await subject.msg.channel.send("Correct answers: %s" % ", ".join(subject.correct_options))
+            await subject.send_message("Correct answers: %s" % ", ".join(subject.correct_options))

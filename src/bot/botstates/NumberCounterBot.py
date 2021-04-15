@@ -2,7 +2,7 @@ from __future__ import annotations
 from twitchio.dataclasses import Message
 import logging
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Callable
 from src.bot.botstates.BotState import BotState
 from src.bot.botstates.DefaultBot import DefaultBot
 from src.bot.botstates.TeamGameHandler import TeamGameHandler
@@ -17,7 +17,7 @@ if TYPE_CHECKING:
 
 class NumberCounterBot(TeamGameHandler, BotState, Subject):
 
-    def __init__(self, target_number: int, team_data: TeamData):
+    def __init__(self, target_number: int, team_data: TeamData, send_message: Callable[[str], None]):
         super().__init__(team_data)
         if target_number < 0:
             target_number = abs(target_number)
@@ -29,7 +29,7 @@ class NumberCounterBot(TeamGameHandler, BotState, Subject):
             self.team_numbers[i] = []
         self.won = False
         self.observers = []
-        self.msg = None
+        self.send_message = send_message
 
     def attach(self, observer: Observer) -> None:
         self.observers.append(observer)
@@ -42,7 +42,6 @@ class NumberCounterBot(TeamGameHandler, BotState, Subject):
             await observer.update(self)
 
     async def handle_event_message(self, msg: Message) -> None:
-        self.msg = msg
 
         if not self.game_started:
             return

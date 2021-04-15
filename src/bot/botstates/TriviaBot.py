@@ -1,5 +1,5 @@
 from twitchio.dataclasses import Message
-from typing import Dict
+from typing import Dict, Callable
 from datetime import datetime
 from dataclasses import dataclass
 
@@ -20,7 +20,7 @@ class TriviaResponse:
 class TriviaBot(TeamGameHandler, BotState, Subject):
 
     def __init__(self, team_data: TeamData, question: str,
-                 options: Dict[str, str], correct_options: [str], msg: Message):
+                 options: Dict[str, str], correct_options: [str], send_message: Callable[[str], None]):
 
         super().__init__(team_data=team_data)
         self.question = question
@@ -30,7 +30,7 @@ class TriviaBot(TeamGameHandler, BotState, Subject):
         self.won = False
         self.winning_team_ids = []
         self.team_data = team_data
-        self.msg = msg
+        self.send_message = send_message
         self.game_start_time = datetime.utcnow()
         """
             Contains teams answers (a list of teams maps: 
@@ -58,7 +58,6 @@ class TriviaBot(TeamGameHandler, BotState, Subject):
         """
         Process incoming user message in trivia state
         """
-        self.msg = msg
 
         if not self.game_started:
             return

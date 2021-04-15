@@ -37,19 +37,19 @@ class WinGameChatObserver(Observer):
             except IndexError as index_err:
                 logging.error(index_err)
 
-            await subject.msg.channel.send(self.format_winner_list(winning_team_names))
-            await subject.msg.channel.send(self.format_winner_list(winning_user_names))
+            await subject.send_message(self.format_winner_list(winning_team_names))
+            await subject.send_message(self.format_winner_list(winning_user_names))
 
     @staticmethod
     def format_winner_list(winning_ids: [str]):
         if len(winning_ids) == 1:
-            win_annoncement = winning_ids[0] + " wins!"
+            win_announcement = winning_ids[0] + " wins!"
         elif len(winning_ids) == 2:
-            win_annoncement = f"{winning_ids[0]} and {winning_ids[1]} win!"
+            win_announcement = f"{winning_ids[0]} and {winning_ids[1]} win!"
         else:
-            win_annoncement = ", ".join(winning_ids[0::-1]) + ", and " + str(winning_ids[-1]) + " win!"
+            win_announcement = ", ".join(winning_ids[0::-1]) + ", and " + str(winning_ids[-1]) + " win!"
 
-        return win_annoncement
+        return win_announcement
 
     @staticmethod
     def get_usernames(winning_ids: [str]) -> [str]:

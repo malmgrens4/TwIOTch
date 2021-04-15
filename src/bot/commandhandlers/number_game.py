@@ -1,3 +1,5 @@
+from typing import Callable
+
 from twitchio.dataclasses import Message
 from src.bot.TeamData import TeamData
 from src.bot.botstates.BotState import BotState
@@ -5,24 +7,20 @@ from src.bot.commandhandlers.utils import parse_args
 from src.bot.botstates.NumberCounterBot import NumberCounterBot
 from src.bot.gameobservers.BalloonBoxObserver import BalloonBoxTeamObserver
 from src.bot.gameobservers.NumberGameScoreObserver import NumberGameScoreObserver
+from src.bot.gameobservers.RoundsObserver import RoundsObserver
 from src.bot.gameobservers.WinGameChatObserver import WinGameChatObserver
 
 
-async def start_number_game(msg: Message, team_data: TeamData, botState: BotState):
+async def start_number_game(team_data: TeamData, botState: BotState,
+                            send_message: Callable[[str], None], target_number: int = 20):
     """Starts a game where teams compete to list every number between 1 and the target number"""
-    if not msg.author.is_mod:
-        return
-
-    args = parse_args(msg, ['target_number'])
-    target_number = int(args['target_number'])
-
-    number_counter_bot = NumberCounterBot(target_number=target_number, team_data=team_data)
+    number_counter_bot = NumberCounterBot(target_number=target_number, team_data=team_data, send_message=send_message)
     number_counter_bot.attach(WinGameChatObserver())
     number_counter_bot.attach(NumberGameScoreObserver())
     number_counter_bot.attach(BalloonBoxTeamObserver())
+    number_counter_bot.attach(RoundsObserver())
 
     botState.transition_to(number_counter_bot)
     await number_counter_bot.game_start()
-    await msg.channel\
-        .send(f"Number game started with {team_data.num_teams} teams. First to count to {target_number} wins!")
+    await send_message(f"Number game started with {team_data.num_teams} teams. First to count to {target_number} wins!")
     return
