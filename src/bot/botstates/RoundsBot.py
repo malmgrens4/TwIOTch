@@ -12,6 +12,7 @@ class ArgumentParser(argparse.ArgumentParser):
     def error(self, message):
         raise Exception(message)
 
+
 class RoundsBot(BotState):
 
     async def can_join(self, msg: Message) -> bool:
@@ -25,23 +26,24 @@ class RoundsBot(BotState):
         pass
 
     async def handle_event_message(self, msg: Message) -> None:
-        if not msg.author.is_mod or msg.content == "!rounds":
+        if not msg.author.is_mod or "!rounds" in msg.content:
             return
 
-        if msg.content == "start":
-            self.rounds_queue.start()
+        if msg.content.lower() == "start":
+            await self.rounds_queue.start()
+            return
 
         parser = ArgumentParser(description='Create a round.')
-        parser.add_argument('repeats', metavar='n', type=int, nargs='?', help='Number of times the game should repeat.')
+        parser.add_argument('repeats', metavar='n', type=int, help='Number of times the game should repeat.')
 
-        number_group = parser.add_argument_group('number')
-        number_group.add_argument('number', metavar='N', help='Play the number game.')
-        number_group.add_argument('-c', '--count', type=int, help="Number users will count to.")
+        subparsers = parser.add_subparsers(help='trivia or number', dest='game')
 
-        trivia_group = parser.add_argument_group('trivia')
-        trivia_group.add_argument('trivia', metavar='T', help='Play trivia')
-        trivia_group.add_argument('-t', '--category', metavar='TRIVIA CATEGORY', type=str,
-                                  help='Any valid trivia category.')
+        number_parser = subparsers.add_parser('number', help='Specify a number to count to!')
+        number_parser.add_argument('-c', '--count', type=int, help="Number users will count to.")
+
+        trivia_parser = subparsers.add_parser('trivia', help='Optionally specify a category')
+        trivia_parser.add_argument('-c', '--category', metavar='TRIVIA CATEGORY', type=str,
+                                   help='Any valid trivia category.')
 
         msg_content = msg.content.lower()
         try:
@@ -51,9 +53,9 @@ class RoundsBot(BotState):
             await msg.channel.send(err)
             return
 
-        for i in range(0, round_args.repeats + 1):
-            if round_args.trivia:
-                self.rounds_queue.add_round(Round(on_round_start=lambda: trivia.start_trivia(send_message=msg.channel.send, category=round_args.category, team_data=self.team_data, botState=self)))
-            elif round_args.number:
-                self.rounds_queue.add_round(Round(on_round_start=lambda: number_game.start_number_game(team_data=self.team_data, botState=self, send_message=msg.channel.send)))
+        for i in range(0, round_args.repeats):
+            if round_args.game == 'trivia':
+                self.rounds_queue.add_round(Round(on_round_start=lambda: trivia.start_trivia(send_message=msg.channel.send, category=round_args.category, team_data=self.team_data, botState=self.context)))
+            elif round_args.game == 'number':
+                self.rounds_queue.add_round(Round(on_round_start=lambda: number_game.start_number_game(team_data=self.team_data, botState=self.context, send_message=msg.channel.send, target_number=round_args.count)))
 

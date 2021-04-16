@@ -9,7 +9,7 @@ class Round:
 
 
 class RoundsQueue:
-    def __init__(self, time_between_rounds: int = 30, rounds: [Round] = []):
+    def __init__(self, time_between_rounds: int = 5, rounds: [Round] = []):
         self.rounds: [Round] = []
         self.time_between_rounds = time_between_rounds
         self.current_round = None
@@ -26,9 +26,9 @@ class RoundsQueue:
             await self.current_round.on_round_end()
 
         await asyncio.sleep(self.time_between_rounds)
-        await self.start_round()
+        await self.start_next_round()
 
     async def start_next_round(self):
         if len(self.rounds):
-            new_round = self.rounds.pop(0)
-            await new_round.on_round_start()
+            self.current_round = self.rounds.pop(0)
+            await self.current_round.on_round_start()

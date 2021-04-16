@@ -19,7 +19,7 @@ from src.bot.commandhandlers import trivia, number_game, battle_car
 botState = BotStateContext(DefaultBot())
 
 team_data = TeamData(2)
-rounds_queue = RoundsQueue(time_between_rounds=30)
+rounds_queue = RoundsQueue(time_between_rounds=20)
 
 bot = commands.Bot(
     # set up the bot
@@ -58,6 +58,14 @@ async def event_ready():
 
 @bot.command(name='rounds')
 async def rounds(msg: Message):
+    global rounds_queue
+    args = parse_args(msg, ['time_between_rounds'])
+    time_between_rounds = 30
+
+    if args['time_between_rounds']:
+        time_between_rounds = int(args['time_between_rounds'])
+
+    rounds_queue = RoundsQueue(time_between_rounds=time_between_rounds)
     botState.transition_to(RoundsBot(rounds_queue=rounds_queue, team_data=team_data))
 
 
