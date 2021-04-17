@@ -1,5 +1,5 @@
-from src.bot import RoundsManager
-from src.bot.RoundsManager import RoundsQueue
+from src.bot import RoundsQueue
+from src.bot.RoundsQueue import RoundsQueue
 from src.bot.botstates.TeamGameHandler import TeamGameHandler
 from src.bot.gameobservers.Observer import Observer
 

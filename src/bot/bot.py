@@ -3,7 +3,7 @@ import logging
 from asyncio import sleep
 from twitchio.ext import commands
 
-from src.bot.RoundsManager import RoundsQueue
+from src.bot.RoundsQueue import RoundsQueue
 from src.bot.botstates.DefaultBot import DefaultBot
 from src.blueteeth.toolbox.toolbox import get_phuelight
 from src.bot.botstates.Context import Context as BotStateContext
@@ -59,6 +59,7 @@ async def event_ready():
 @bot.command(name='rounds')
 async def rounds(msg: Message):
     global rounds_queue
+    rounds_queue.clear()
     args = parse_args(msg, ['time_between_rounds'])
     time_between_rounds = 30
 

@@ -2,7 +2,7 @@ import argparse
 import sys
 import logging
 from twitchio import Message
-from src.bot.RoundsManager import RoundsQueue, Round
+from src.bot.RoundsQueue import RoundsQueue, Round
 from src.bot.TeamData import TeamData
 from src.bot.botstates.BotState import BotState
 from src.bot.commandhandlers import trivia, number_game

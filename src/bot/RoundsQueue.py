@@ -18,6 +18,10 @@ class RoundsQueue:
     def add_round(self, round: Round):
         self.rounds.append(round)
 
+    def clear(self):
+        self.rounds = []
+        self.current_round = None
+
     async def start(self):
         await self.start_next_round()
 
