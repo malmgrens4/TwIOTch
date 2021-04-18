@@ -23,8 +23,8 @@ class TriviaFileDisplayObserver(Observer):
 
             self.toggle_file_display(visible=True, file_name=self.image_template_file_name)
 
-            question_file = open(self.question_path, "w")
-            question_file.write(subject.question)
+            self.write_to_path(self.question_path, subject.question)
+
             for key, value in subject.options.items():
                 # set the options labels on and display text on
                 self.toggle_file_display(visible=True, file_name=f'{key}.txt')
@@ -45,7 +45,7 @@ class TriviaFileDisplayObserver(Observer):
             # TODO handle cancel/smaller time between rounds
             # TODO (probably a botState handle that tells the observers to clean up)
             await asyncio.sleep(5)
-            # clear correct answers and template
+            # clear all answers
             for key, value in subject.options.items():
                 if key in subject.correct_options:
                     self.toggle_file_display(visible=False, file_name=f'{key}.txt')
@@ -53,6 +53,7 @@ class TriviaFileDisplayObserver(Observer):
                     option_path = os.path.join(self.display_file_path, f'{key}_option.txt')
                     self.write_to_path(option_path, "")
 
+            self.write_to_path(self.question_path, "")
             self.toggle_file_display(visible=False, file_name=self.image_template_file_name)
 
     @staticmethod
