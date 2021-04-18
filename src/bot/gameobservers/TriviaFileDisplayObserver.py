@@ -59,7 +59,7 @@ class TriviaFileDisplayObserver(Observer):
     def write_to_path(file_path, content: str = ""):
         """Writes empty space to file."""
         option_file = open(file_path, 'w')
-        option_file.write(content)
+        option_file.write(content + " "*10)
 
     @staticmethod
     def toggle_file_display(visible: bool, file_name):
