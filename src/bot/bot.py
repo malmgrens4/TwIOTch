@@ -163,7 +163,7 @@ async def start_trivia(msg: Message):
     if len(args) >= 2:
         category = "".join(args[1:]).replace('"', '')
 
-    return await trivia.start_trivia(msg=msg.channel.send, category=category, botState=botState, team_data=team_data)
+    return await trivia.start_trivia(send_message=msg.channel.send, category=category, botState=botState, team_data=team_data)
 
 
 @bot.command(name='help')

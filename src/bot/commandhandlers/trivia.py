@@ -13,6 +13,7 @@ from src.bot.db.schema import session_scope, Session, TriviaQuestion, TriviaOpti
 from src.bot.botstates.TriviaBot import TriviaBot
 from src.bot.botstates.BotState import BotState
 from src.bot.TeamData import TeamData
+from src.bot.gameobservers.TriviaFileDisplayObserver import TriviaFileDisplayObserver
 from src.bot.gameobservers.WinGameChatObserver import WinGameChatObserver
 from src.bot.gameobservers.TriviaDBObserver import TriviaDBObserver
 
@@ -43,8 +44,6 @@ async def start_trivia(send_message: Callable[[str]], category: str, team_data: 
         await send_message("The teams have no players. Use !joingame to participate.")
         return
 
-
-
     trivia_response = get_random_trivia(category)
     if not trivia_response:
         await send_message("Failed to find any trivia questions. Try another category.")
@@ -62,6 +61,7 @@ async def start_trivia(send_message: Callable[[str]], category: str, team_data: 
                            options=options_map,
                            correct_options=correct_options,
                            send_message=send_message)
+    trivia_bot.attach(TriviaFileDisplayObserver())
     trivia_bot.attach(TriviaChatObserver())
     trivia_bot.attach(TriviaAnswerTimerObserver())
     trivia_bot.attach(TriviaDBObserver())

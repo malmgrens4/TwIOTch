@@ -15,8 +15,8 @@ async def test_event_message_handling():
     user1_id = 1
     team_data = TeamData(2)
     team_data.teams = {user1_id: 0}
-
-    number_counter = NumberCounterBot(target_number=20, team_data=team_data)
+    send_message_mock = AsyncMock()
+    number_counter = NumberCounterBot(target_number=20, team_data=team_data, send_message=send_message_mock)
     # user 1 is on team 0
     mock_message_context = AsyncMock()
     mock_message_context.author.id = user1_id
@@ -34,7 +34,7 @@ async def test_event_message_handling():
     team_data = TeamData(4)
     team_data.teams = {0: 0, 1: 1, 2: 2, 3: 3}
 
-    number_counter = NumberCounterBot(target_number=target_number, team_data=team_data)
+    number_counter = NumberCounterBot(target_number=target_number, team_data=team_data, send_message=send_message_mock)
     await number_counter.game_start()
 
     mock_message_context = AsyncMock()
@@ -56,7 +56,7 @@ async def test_event_message_handling():
         when duplicates are sent 
         then win is not called
     """
-    number_counter = NumberCounterBot(target_number=2, team_data=team_data)
+    number_counter = NumberCounterBot(target_number=2, team_data=team_data, send_message=send_message_mock)
     await number_counter.game_start()
     number_counter.teams = {0: 0, 1: 1}
 

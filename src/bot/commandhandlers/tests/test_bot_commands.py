@@ -1,3 +1,4 @@
+import os
 import pytest
 from unittest.mock import MagicMock, patch, AsyncMock, DEFAULT
 from src.bot.TeamData import TeamData
@@ -19,11 +20,13 @@ class TestTrivia:
         """Verify that start_trivia_bot is called"""
         mocked_objects = {'WinGameChatObserver': DEFAULT,
                           'TriviaChatObserver': DEFAULT,
+                          'TriviaDBObserver': DEFAULT,
                           'TriviaAnswerTimerObserver': AsyncMock,
                           'TriviaBot': DEFAULT}
         with patch.multiple('src.bot.commandhandlers.trivia',
                             **mocked_objects,
                             get_random_trivia=self.return_trivia_data) as values:
+
             trivia_bot_mock = AsyncMock()
             trivia_bot_mock.attach = MagicMock()
             values['TriviaBot'].return_value = trivia_bot_mock
@@ -31,42 +34,40 @@ class TestTrivia:
             message.content = "!start_trivia"
             message.author.is_mod = True
 
+            send_message_mock = AsyncMock()
             botState = AsyncMock()
             botState.transition_to = MagicMock()
 
             team_data = TeamData()
             team_data.teams = {1: 0}
 
-            await start_trivia(message, team_data, botState)
+            await start_trivia(send_message=send_message_mock, category=None, team_data=team_data, botState=botState)
             botState.transition_to.assert_called_once()
             values['TriviaBot'].return_value.game_start.assert_called_once()
 
     @pytest.mark.asyncio
     async def test_trivia_no_matching_category(self):
         with patch.multiple('src.bot.commandhandlers.trivia', get_random_trivia=lambda x: None):
-            message = AsyncMock()
-            message.content = "!start_trivia"
-            message.author.is_mod = True
-
+            send_message_mock = AsyncMock()
             botState = AsyncMock()
             botState.transition_to = MagicMock()
 
             team_data = TeamData()
             team_data.teams = {1: 0}
 
-            await start_trivia(message, team_data, botState)
+            await start_trivia(send_message=send_message_mock, category=None,
+                               team_data=team_data, botState=botState)
+
             botState.transition_to.assert_not_called()
-            message.channel.send.assert_called_with("Failed to find any trivia questions. Try another category.")
+            send_message_mock.assert_called_with("Failed to find any trivia questions. Try another category.")
 
 
 class TestNumberGame:
     @pytest.mark.asyncio
     async def test_start_number_game(self):
-        """test number game starts with valid start input"""
-        msg = AsyncMock()
-        msg.author.is_mod = True
+        """tests number game starts with valid start input"""
+        send_message_mock = AsyncMock()
         target_number = 20
-        msg.content = "!start_number_game " + str(target_number)
         team_data = TeamData(2)
 
         botState = AsyncMock()
@@ -81,6 +82,7 @@ class TestNumberGame:
             number_counter_bot_mock.attach = MagicMock()
             values['NumberCounterBot'].return_value = number_counter_bot_mock
 
-            await start_number_game(msg, team_data, botState)
+            await start_number_game(send_message=send_message_mock, team_data=team_data,
+                                    botState=botState, target_number=target_number)
 
             values['NumberCounterBot'].return_value.game_start.assert_called_once()

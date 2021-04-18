@@ -19,7 +19,6 @@ class TriviaAnswerTimerObserver(Observer):
                 logging.debug("Game ending because of timeout. Not all users answered.")
                 await subject.end_game()
             except asyncio.CancelledError:
-                print("cancelled!")
                 raise
 
         if subject.game_started and not self.task:

@@ -8,7 +8,7 @@ from src.bot.gameobservers.WinGameChatObserver import WinGameChatObserver
 class TestNumberGameObservers:
     @pytest.mark.asyncio
     async def test_win_chat_announce_winners(self):
-        """test winning messages are called when the game is over"""
+        """tests winning messages are called when the game is over"""
         mock_subject = AsyncMock()
 
         mock_subject.won = True

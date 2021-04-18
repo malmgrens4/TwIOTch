@@ -14,13 +14,14 @@ async def test_trivia_answers():
 
     user1_id = 1
     user2_id = 2
+    send_message_mock = AsyncMock()
     mock_message = AsyncMock()
     team_data = TeamData(2)
     trivia_bot = TriviaBot(team_data=team_data,
                            question="Test question?",
                            options={'a': 'Option A', 'b': 'Option B'},
                            correct_options=['a'],
-                           msg=mock_message)
+                           send_message=send_message_mock)
 
     trivia_bot.end_game = AsyncMock()
 
@@ -47,13 +48,14 @@ async def test_all_users_answered():
     """
     user1_id = 1
     user2_id = 2
+    send_message_mock = AsyncMock()
     mock_message = AsyncMock()
     team_data = TeamData(2)
     trivia_bot = TriviaBot(team_data=team_data,
                            question="Test question?",
                            options={'a': 'Option A', 'b': 'Option B'},
                            correct_options=['a'],
-                           msg=mock_message)
+                           send_message=send_message_mock)
 
     trivia_bot.end_game = AsyncMock()
 
@@ -83,13 +85,14 @@ async def test_invalid_trivia_answer():
 
     user1_id = 1
     user2_id = 2
+    send_message_mock = AsyncMock()
     mock_message = AsyncMock()
     team_data = TeamData(2)
     trivia_bot = TriviaBot(team_data=team_data,
                            question="Test question?",
                            options={'a': 'Option A', 'b': 'Option B'},
                            correct_options=['a'],
-                           msg=mock_message)
+                           send_message=send_message_mock)
 
     trivia_bot.team_data.teams = {user1_id: 0, user2_id: 1}
 
@@ -111,13 +114,14 @@ async def test_team_win():
     """
     user1_id = 1
     user2_id = 2
+    send_message_mock = AsyncMock()
     mock_message = AsyncMock()
     team_data = TeamData(2)
     trivia_bot = TriviaBot(team_data=team_data,
                            question="Test question?",
                            options={'a': 'Option A', 'b': 'Option B'},
                            correct_options=['a'],
-                           msg=mock_message)
+                           send_message=send_message_mock)
 
     trivia_bot.win = AsyncMock()
 
@@ -148,13 +152,14 @@ async def test_early_end():
     """
     user1_id = 1
     user2_id = 2
+    send_message_mock = AsyncMock()
     mock_message = AsyncMock()
     team_data = TeamData(2)
     trivia_bot = TriviaBot(team_data=team_data,
                            question="Test question?",
                            options={'a': 'Option A', 'b': 'Option B'},
                            correct_options=['a'],
-                           msg=mock_message)
+                           send_message=send_message_mock)
     trivia_bot.win = AsyncMock()
 
     trivia_bot.team_data.teams = {user1_id: 0, user2_id: 1}
@@ -180,13 +185,14 @@ async def test_second_answer_ignored():
     """
     user1_id = 1
     user2_id = 2
+    send_message_mock = AsyncMock()
     mock_message = AsyncMock()
     team_data = TeamData(2)
     trivia_bot = TriviaBot(team_data=team_data,
                            question="Test question?",
                            options={'a': 'Option A', 'b': 'Option B'},
                            correct_options=['a'],
-                           msg=mock_message)
+                           send_message=send_message_mock)
     trivia_bot.win = AsyncMock()
 
     trivia_bot.team_data.teams = {user1_id: 0, user2_id: 1}
@@ -217,13 +223,14 @@ async def test_game_end_half_team_answers():
     user1_id = 1
     user2_id = 2
     user3_id = 3
+    send_message_mock = AsyncMock()
     mock_message = AsyncMock()
     team_data = TeamData(2)
     trivia_bot = TriviaBot(team_data=team_data,
                            question="Test question?",
                            options={'a': 'Option A', 'b': 'Option B'},
                            correct_options=['a'],
-                           msg=mock_message)
+                           send_message=send_message_mock)
     trivia_bot.win = AsyncMock()
 
     trivia_bot.team_data.teams = {user1_id: 0, user2_id: 1, user3_id: 0}
@@ -264,7 +271,7 @@ async def test_game_end_half_team_answers():
 #                            question="Test question?",
 #                            options={'a': 'Option A', 'b': 'Option B'},
 #                            correct_options=['a'],
-#                            msg=mock_message)
+#                            send_message=send_message_mock)
 #     trivia_bot.win = AsyncMock()
 #
 #     trivia_bot.team_data.teams = {user1_id: 0, user2_id: 1, user3_id: 0}
