@@ -12,6 +12,7 @@ class NumberGameScoreObserver(Observer):
 
     async def update(self, subject: NumberCounterBot) -> None:
         if subject.won:
+            logging.debug("Giving number game winners points.")
             winning_ids = subject.get_team_member_map()[subject.winning_team_id]
             try:
                 with session_scope() as session:

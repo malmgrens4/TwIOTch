@@ -13,6 +13,7 @@ class WinGameChatObserver(Observer):
 
     async def update(self, subject: TeamGameHandler) -> None:
         if subject.won and len(subject.team_data.get_team_member_map().values()):
+            logging.debug("Creating win display.")
             if subject.winning_team_id is not None:
                 winning_team_ids = [subject.winning_team_id]
             else:
@@ -36,9 +37,11 @@ class WinGameChatObserver(Observer):
                 logging.error(sql_err)
             except IndexError as index_err:
                 logging.error(index_err)
-
-            await subject.send_message(self.format_winner_list(winning_team_names))
-            await subject.send_message(self.format_winner_list(winning_user_names))
+            try:
+                await subject.send_message(self.format_winner_list(winning_team_names))
+                await subject.send_message(self.format_winner_list(winning_user_names))
+            except Exception as err:
+                logging.error(err)
 
     @staticmethod
     def format_winner_list(winning_ids: [str]):

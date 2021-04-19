@@ -15,6 +15,7 @@ class TriviaDBObserver(Observer):
 
     async def update(self, subject: TriviaBot) -> None:
         if subject.won:
+            logging.debug("Awarding trivia points.")
             correct_user_responses: Dict[int, TriviaResponse] = {}
             for responses in subject.team_responses:
                 for k, v in responses.items():

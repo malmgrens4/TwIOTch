@@ -1,3 +1,4 @@
+import logging
 from src.bot import RoundsQueue
 from src.bot.RoundsQueue import RoundsQueue
 from src.bot.botstates.TeamGameHandler import TeamGameHandler
@@ -11,4 +12,5 @@ class RoundsObserver(Observer):
 
     async def update(self, subject: TeamGameHandler) -> None:
         if subject.won:
+            logging.debug("Subject won. Starting next round.")
             await self.rounds_queue.end_round()
