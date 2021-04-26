@@ -63,11 +63,11 @@ async def start_trivia(send_message: Callable[[str]], category: str, team_data: 
                            send_message=send_message)
     trivia_bot.attach(TriviaFileDisplayObserver())
     trivia_bot.attach(TriviaChatObserver())
-    trivia_bot.attach(TriviaAnswerTimerObserver())
     trivia_bot.attach(TriviaDBObserver())
     trivia_bot.attach(WinGameChatObserver())
     trivia_bot.attach(BalloonBoxTeamObserver())
     trivia_bot.attach(RoundsObserver())
+    trivia_bot.attach(TriviaAnswerTimerObserver())
     botState.transition_to(trivia_bot)
     await trivia_bot.game_start()
     return
