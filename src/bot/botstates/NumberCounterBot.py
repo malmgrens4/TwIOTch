@@ -14,7 +14,6 @@ if TYPE_CHECKING:
     from src.bot.gameobservers.Observer import Observer
 
 
-
 class NumberCounterBot(TeamGameHandler, BotState, Subject):
 
     def __init__(self, target_number: int, team_data: TeamData, send_message: Callable[[str], None]):
@@ -49,16 +48,18 @@ class NumberCounterBot(TeamGameHandler, BotState, Subject):
         team_id = self.team_data.teams.get(msg.author.id)
         if team_id is None:
             return
-
-        user_input_number = int(msg.content)
-        if 0 < user_input_number <= self.target_number:
-            if user_input_number not in self.team_numbers[team_id]:
-                self.team_numbers[team_id].add(user_input_number)
-                # check for win condition
-                if len(self.team_numbers[team_id]) == self.target_number:
-                    await self.win(team_id)
-                    return
-        await self.notify()
+        try:
+            user_input_number = int(msg.content)
+            if 0 < user_input_number <= self.target_number:
+                if user_input_number not in self.team_numbers[team_id]:
+                    self.team_numbers[team_id].add(user_input_number)
+                    # check for win condition
+                    if len(self.team_numbers[team_id]) == self.target_number:
+                        await self.win(team_id)
+                        return
+            await self.notify()
+        except Exception as err:
+            logging.error(err)
 
     async def handle_join(self, msg: Message) -> None:
         return await super().handle_join(msg)
@@ -71,8 +72,8 @@ class NumberCounterBot(TeamGameHandler, BotState, Subject):
     async def win(self, winning_team_id: int) -> None:
         self.won = True
         self.winning_team_id = winning_team_id
-        self.context.transition_to(DefaultBot())
         await self.notify()
+        self.context.transition_to(DefaultBot())
 
     async def can_join(self, msg: Message) -> bool:
         return await super().can_join(msg)

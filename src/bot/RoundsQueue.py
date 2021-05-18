@@ -4,14 +4,14 @@ import asyncio
 
 
 class Round:
-    def __init__(self, on_round_start: Callable, on_round_end: Callable = None):
+    def __init__(self, name: str, on_round_start: Callable, on_round_end: Callable = None):
+        self.name = name
         self.on_round_start = on_round_start
         self.on_round_end = on_round_end
 
 
 class RoundsQueue:
     def __init__(self, time_between_rounds: int = 5, rounds: [Round] = []):
-        self.rounds: [Round] = []
         self.time_between_rounds = time_between_rounds
         self.current_round = None
         self.rounds = rounds

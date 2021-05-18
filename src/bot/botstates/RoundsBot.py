@@ -55,7 +55,7 @@ class RoundsBot(BotState):
 
         for i in range(0, round_args.repeats):
             if round_args.game == 'trivia':
-                self.rounds_queue.add_round(Round(on_round_start=lambda: trivia.start_trivia(send_message=msg.channel.send, category=round_args.category, team_data=self.team_data, botState=self.context)))
+                self.rounds_queue.add_round(Round(name=round_args.game, on_round_start=lambda: trivia.start_trivia(send_message=msg.channel.send, category=round_args.category, team_data=self.team_data, botState=self.context)))
             elif round_args.game == 'number':
-                self.rounds_queue.add_round(Round(on_round_start=lambda: number_game.start_number_game(team_data=self.team_data, botState=self.context, send_message=msg.channel.send, target_number=round_args.count)))
+                self.rounds_queue.add_round(Round(name=round_args.game, on_round_start=lambda: number_game.start_number_game(team_data=self.team_data, botState=self.context, send_message=msg.channel.send, target_number=round_args.count)))
 

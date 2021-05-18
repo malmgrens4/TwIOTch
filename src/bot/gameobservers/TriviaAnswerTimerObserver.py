@@ -16,10 +16,11 @@ class TriviaAnswerTimerObserver(Observer):
     async def update(self, subject: TriviaBot) -> None:
         async def close_trivia():
             try:
-                self.timed_out = True
                 await asyncio.sleep(self.max_response_time)
+                self.timed_out = True
                 logging.debug("Game ending because of timeout. Not all users answered.")
-                await subject.end_game()
+                if not subject.won:
+                    await subject.end_game()
             except asyncio.CancelledError as err:
                 raise err
 

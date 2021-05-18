@@ -41,10 +41,6 @@ class TriviaFileDisplayObserver(Observer):
                     option_path = os.path.join(self.display_file_path, f'{key}_option.txt')
                     self.write_to_path(option_path, "")
 
-            # keep the file displays on for 5 seconds
-            # TODO handle cancel/smaller time between rounds
-            # TODO (probably a botState handle that tells the observers to clean up)
-            await asyncio.sleep(5)
             # clear all answers
             for key, value in subject.options.items():
                 if key in subject.correct_options:

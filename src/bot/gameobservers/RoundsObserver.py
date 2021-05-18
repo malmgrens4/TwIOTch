@@ -11,6 +11,6 @@ class RoundsObserver(Observer):
         self.rounds_queue = rounds_queue
 
     async def update(self, subject: TeamGameHandler) -> None:
-        if subject.won:
+        if subject.won and self.rounds_queue.current_round:
             logging.debug("Subject won. Starting next round.")
             await self.rounds_queue.end_round()
