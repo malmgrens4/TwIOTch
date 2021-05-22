@@ -21,6 +21,7 @@ inputs = "*"
 coverage = "*"
 argparse = "*"
 pytest-dotenv = "*"
+pillow = "*"
 
 [requires]
 python_version = "3.9"

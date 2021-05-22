@@ -4,7 +4,8 @@ import asyncio
 import shutil
 from src.bot.gameobservers.Observer import Observer
 from src.bot.botstates.TriviaBot import TriviaBot
-
+from src.bot.gameobservers.utils import create_trivia_display
+from typing import Dict
 
 class TriviaFileDisplayObserver(Observer):
     display_file_path = os.environ['DISPLAY_FILE_PATH']
@@ -20,37 +21,20 @@ class TriviaFileDisplayObserver(Observer):
         """Toggle all trivia displays to sync with game."""
         if not self.display_on and subject.game_started:
             self.display_on = True
-
-            self.toggle_file_display(visible=True, file_name=self.image_template_file_name)
-
-            self.write_to_path(self.question_path, subject.question)
-
-            for key, value in subject.options.items():
-                # set the options labels on and display text on
-                self.toggle_file_display(visible=True, file_name=f'{key}.txt')
-
-                option_text_path = os.path.join(self.display_file_path, f'{key}_option.txt')
-                self.write_to_path(file_path=option_text_path, content=value)
+            create_trivia_display(subject.question, subject.options)
 
         if subject.won:
-            # clear wrong answers
-            for key, value in subject.options.items():
-                if key not in subject.correct_options:
-                    self.toggle_file_display(visible=False, file_name=f'{key}.txt')
-
-                    option_path = os.path.join(self.display_file_path, f'{key}_option.txt')
-                    self.write_to_path(option_path, "")
-
-            # clear all answers
+            correct_options: Dict[str, str] = {}
+            # create a display with only right answers
             for key, value in subject.options.items():
                 if key in subject.correct_options:
-                    self.toggle_file_display(visible=False, file_name=f'{key}.txt')
+                    correct_options[key] = value
 
-                    option_path = os.path.join(self.display_file_path, f'{key}_option.txt')
-                    self.write_to_path(option_path, "")
+            create_trivia_display(subject.question, correct_options)
 
-            self.write_to_path(self.question_path, "")
-            self.toggle_file_display(visible=False, file_name=self.image_template_file_name)
+        # if the time between rounds is greater than 5 seconds display the answers then delete it
+        # otherwise just delete the trivia_question.png file
+        await asyncio.sleep(os.environ[''])
 
     @staticmethod
     def write_to_path(file_path, content: str = ""):
