@@ -61,8 +61,8 @@ async def start_trivia(send_message: Callable[[str]], category: str, team_data: 
                            options=options_map,
                            correct_options=correct_options,
                            send_message=send_message)
-    trivia_bot.attach(TriviaFileDisplayObserver())
     trivia_bot.attach(TriviaChatObserver())
+    trivia_bot.attach(TriviaFileDisplayObserver())
     trivia_bot.attach(TriviaDBObserver())
     trivia_bot.attach(WinGameChatObserver())
     trivia_bot.attach(BalloonBoxTeamObserver())

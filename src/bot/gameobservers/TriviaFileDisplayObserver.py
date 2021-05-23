@@ -1,7 +1,6 @@
 import logging
 import os
 import asyncio
-import shutil
 from src.bot.gameobservers.Observer import Observer
 from src.bot.botstates.TriviaBot import TriviaBot
 from src.bot.gameobservers.utils import create_trivia_display
@@ -16,6 +15,8 @@ class TriviaFileDisplayObserver(Observer):
                                         os.environ['TRIVIA_QUESTION_FILE_NAME']).replace("\\", "/")
 
     def __init__(self):
+        from src.bot.bot import rounds_queue
+        self.rounds_queue = rounds_queue
         self.display_on = False
 
     async def update(self, subject: TriviaBot) -> None:
@@ -25,20 +26,22 @@ class TriviaFileDisplayObserver(Observer):
             create_trivia_display(subject.question, subject.options)
 
         if subject.won:
-            correct_options: Dict[str, str] = {}
-            # create a display with only right answers
-            for key, value in subject.options.items():
-                if key in subject.correct_options:
-                    correct_options[key] = value
+            if int(self.rounds_queue.time_between_rounds/5) >= 5:
+                await asyncio.sleep(5)
 
-            create_trivia_display(subject.question, correct_options)
+                correct_options: Dict[str, str] = {}
+                # create a display with only right answers
+                for key, value in subject.options.items():
+                    if key in subject.correct_options:
+                        correct_options[key] = value
+
+                create_trivia_display(subject.question, correct_options)
 
         # if the time between rounds is greater than 5 seconds display the answers then delete it
         # otherwise just delete the trivia_question.png file
-            if int(subject.rounds_queue.time_between_rounds/5) >= 5:
-                await asyncio.sleep(5)
+
             try:
-                os.remove(self.trivia_path)
+                os.remove(self.trivia_question_path)
             except Exception as err:
                 logging.error(err)
 
