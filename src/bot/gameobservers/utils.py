@@ -84,8 +84,6 @@ class TextBox:
             x, y = self.box.x, self.box.y
             draw.multiline_text((x, y), "\n".join(sections), font=self.font)
 
-
-
     def draw_text(self, draw: ImageDraw):
         if self.wrap:
             self.wrap_text(draw)
@@ -106,10 +104,11 @@ class TextBox:
 
 
 def create_trivia_display(question: str, options: Dict[str, str]):
-    display_path = os.environ['DISPLAY_FILE_PATH']
-    trivia_template_path = os.path.join(display_path, 'trivia_image_template.png').replace("\\", "/")
-    output_path = os.path.join(display_path, 'trivia_question.png').replace("\\", "/")
-    font_path = os.path.join(display_path, 'fonts/Roboto-Black.ttf').replace("\\", "/")
+    trivia_template_path = os.path.join(os.environ['DISPLAY_FILE_PATH'],
+                                        os.environ['TRIVIA_TEMPLATE_FILE_NAME']).replace("\\", "/")
+    output_path = os.path.join(os.environ['DISPLAY_FILE_PATH'],
+                               os.environ['TRIVIA_QUESTION_FILE_NAME']).replace("\\", "/")
+    font_path = os.path.join(os.environ['FONT_PATH'], os.environ['FONT']).replace("\\", "/")
     box_map = {'a': Box(x=200, y=402, width=620, height=50),
                'b': Box(x=1100, y=402, width=620, height=50),
                'c': Box(x=200, y=560, width=620, height=50),
