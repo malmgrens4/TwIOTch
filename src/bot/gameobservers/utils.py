@@ -161,6 +161,4 @@ def test_position(x: int, y: int, text: str = "x"):
     draw.text((x, y), text, (255, 255, 255), font=ImageFont.truetype(font_path, 40))
     template_image.save(output_path)
 
-test()
-
 
