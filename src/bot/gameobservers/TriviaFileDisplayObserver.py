@@ -26,8 +26,7 @@ class TriviaFileDisplayObserver(Observer):
             create_trivia_display(subject.question, subject.options)
 
         if subject.won:
-            if int(self.rounds_queue.time_between_rounds/5) >= 5:
-                await asyncio.sleep(5)
+            if int(self.rounds_queue.time_between_rounds/5) >= 10:
 
                 correct_options: Dict[str, str] = {}
                 # create a display with only right answers
@@ -36,6 +35,7 @@ class TriviaFileDisplayObserver(Observer):
                         correct_options[key] = value
 
                 create_trivia_display(subject.question, correct_options)
+                await asyncio.sleep(10)
 
         # if the time between rounds is greater than 5 seconds display the answers then delete it
         # otherwise just delete the trivia_question.png file
