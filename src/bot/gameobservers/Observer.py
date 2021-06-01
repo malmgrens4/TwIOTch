@@ -17,3 +17,11 @@ class Observer(ABC):
         Receive update from subject.
         """
         pass
+
+    @abstractmethod
+    def on_abort(self, subject: Subject) -> None:
+        """
+        In the event a round is cancelled while it's occurring
+        This method will be called to cancel any scheduled tasks
+        or make necessary announcements
+        """

@@ -1,9 +1,7 @@
 from typing import Callable
 
-from twitchio.dataclasses import Message
 from src.bot.TeamData import TeamData
 from src.bot.botstates.BotState import BotState
-from src.bot.commandhandlers.utils import parse_args
 from src.bot.botstates.NumberCounterBot import NumberCounterBot
 from src.bot.gameobservers.BalloonBoxObserver import BalloonBoxTeamObserver
 from src.bot.gameobservers.NumberGameScoreObserver import NumberGameScoreObserver

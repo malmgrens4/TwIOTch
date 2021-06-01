@@ -4,10 +4,15 @@ import logging
 from src.bot.gameobservers.Observer import Observer
 from src.bot.botstates.NumberCounterBot import NumberCounterBot
 from src.bot.db.schema import session_scope, User
+from src.bot.gameobservers.Subject import Subject
 
 
 class NumberGameScoreObserver(Observer):
+
     def __init__(self):
+        pass
+
+    def on_abort(self, subject: Subject) -> None:
         pass
 
     async def update(self, subject: NumberCounterBot) -> None:
@@ -28,3 +33,6 @@ class NumberGameScoreObserver(Observer):
                 logging.error(sql_err)
             except IndexError as index_err:
                 logging.error(index_err)
+
+    async def on_abort(self, subject: NumberCounterBot) -> None:
+        pass

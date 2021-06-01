@@ -18,8 +18,6 @@ if TYPE_CHECKING:
     from src.bot.gameobservers.Observer import Observer
 
 
-
-
 class RCCarBot(TeamGameHandler, BotState, Subject):
 
     def __init__(self, team_data: TeamData, msg: Message):
@@ -27,16 +25,20 @@ class RCCarBot(TeamGameHandler, BotState, Subject):
         self.won = False
         self.team_bot_map = {}
         self.msg = msg
-        self.observers = []
+        self._observers = []
+
+    @property
+    def observers(self) -> None:
+        return self._observers
 
     def attach(self, observer: Observer) -> None:
-        self.observers.append(observer)
+        self._observers.append(observer)
 
     def detach(self, observer: Observer) -> None:
-        self.observers.remove(observer)
+        self._observers.remove(observer)
 
     async def notify(self) -> None:
-        for observer in self.observers:
+        for observer in self._observers:
             await observer.update(self)
 
     async def handle_event_message(self, msg: Message) -> None:
@@ -49,7 +51,7 @@ class RCCarBot(TeamGameHandler, BotState, Subject):
         if team_id is None:
             return
 
-        #process request by tea%$
+        #process request by teams
         args = msg.content.lower().split(' ')
         direction = args[0]
         steps = 1

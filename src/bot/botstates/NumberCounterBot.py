@@ -27,17 +27,21 @@ class NumberCounterBot(TeamGameHandler, BotState, Subject):
         for i in range(0, team_data.num_teams):
             self.team_numbers[i] = []
         self.won = False
-        self.observers = []
+        self._observers = []
         self.send_message = send_message
 
+    @property
+    def observers(self) -> None:
+        return self._observers
+
     def attach(self, observer: Observer) -> None:
-        self.observers.append(observer)
+        self._observers.append(observer)
 
     def detach(self, observer: Observer) -> None:
-        self.observers.remove(observer)
+        self._observers.remove(observer)
 
     async def notify(self) -> None:
-        for observer in self.observers:
+        for observer in self._observers:
             await observer.update(self)
 
     async def handle_event_message(self, msg: Message) -> None:

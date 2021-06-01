@@ -256,44 +256,37 @@ async def test_game_end_half_team_answers():
 
     trivia_bot.win.assert_called_once_with([0])
 
-# @patch('datetime.utcnow')
-# @pytest.mark.asyncio
-# async def test_time_to_respond():
-#     """
-#     make sure a time is attached to a users answer
-#     """
-#     user1_id = 1
-#     user2_id = 2
-#     user3_id = 3
-#     mock_message = AsyncMock()
-#     team_data = TeamData(2)
-#     trivia_bot = TriviaBot(team_data=team_data,
-#                            question="Test question?",
-#                            options={'a': 'Option A', 'b': 'Option B'},
-#                            correct_options=['a'],
-#                            send_message=send_message_mock)
-#     trivia_bot.win = AsyncMock()
-#
-#     trivia_bot.team_data.teams = {user1_id: 0, user2_id: 1, user3_id: 0}
-#
-#     await trivia_bot.game_start()
-#
-#     mock_message.author.id = user1_id
-#     mock_message.content = "a"
-#
-#     await trivia_bot.handle_event_message(mock_message)
-#
-#     mock_message.author.id = user2_id
-#     mock_message.content = "b"
-#
-#     await trivia_bot.handle_event_message(mock_message)
-#
-#     trivia_bot.win.assert_not_called()
-#
-#     mock_message.author.id = user3_id
-#     mock_message.content = "b"
-#
-#     await trivia_bot.handle_event_message(mock_message)
-#
-#     trivia_bot.win.assert_called_once_with([0])
 
+@pytest.mark.asyncio
+async def test_user_is_added_to_team():
+    """
+    when a user submits an answer and hasn't joined the game
+    then they are added to the team and their answer is processed
+    """
+    user1_id = 1
+    user2_id = 2
+    send_message_mock = AsyncMock()
+    mock_message = AsyncMock()
+    team_data = TeamData(2)
+    trivia_bot = TriviaBot(team_data=team_data,
+                           question="Test question?",
+                           options={'a': 'Option A', 'b': 'Option B'},
+                           correct_options=['a'],
+                           send_message=send_message_mock)
+    trivia_bot.win = AsyncMock()
+
+    trivia_bot.team_data.teams = {}
+
+    await trivia_bot.game_start()
+
+    mock_message.author.id = user1_id
+    mock_message.content = "a"
+
+    await trivia_bot.handle_event_message(mock_message)
+    assert trivia_bot.team_responses[0][user1_id].answer == 'a'
+
+    mock_message.author.id = user2_id
+    mock_message.content = "b"
+
+    await trivia_bot.handle_event_message(mock_message)
+    assert trivia_bot.team_responses[1][user2_id].answer == 'b'

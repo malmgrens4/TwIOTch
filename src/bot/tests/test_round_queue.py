@@ -13,10 +13,15 @@ class TestRoundQueue:
         if on_round_end is None:
             on_round_end = AsyncMock()
 
-        return Round(on_round_start=on_round_start, on_round_end=on_round_end), on_round_start, on_round_end
+        return Round(on_round_start=on_round_start, on_round_end=on_round_end, name='test_round'), on_round_start, on_round_end
 
     @pytest.mark.asyncio
     async def test_round_function_order(self):
+        """
+        when there are two rounds ensure
+        then their on_round_start and on_round_end functions
+        are called in the correct order
+        """
         round_one, one_start, one_end = self.mock_round()
         round_two, two_start, two_end = self.mock_round()
 

@@ -31,4 +31,13 @@ class TriviaAnswerTimerObserver(Observer):
         if subject.won and self.task and not self.timed_out:
             self.task.cancel()
 
+    def on_abort(self, subject: TriviaBot) -> None:
+        """
+        Game ended early - we don't need to end the game
+        as the bot context will switch
+        """
+        if self.task and not self.timed_out:
+            self.task.cancel()
+
+
 

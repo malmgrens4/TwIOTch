@@ -9,6 +9,7 @@ from src.bot.db.schema import session_scope, User
 
 class TriviaDBObserver(Observer):
     trivia_max_response_time = int(os.environ['TRIVIA_RESPONSE_TIME_SECONDS']) * 1000
+    score_multiplier = .1
 
     def __init__(self):
         pass
@@ -27,7 +28,8 @@ class TriviaDBObserver(Observer):
                     winning_users = session.query(User).filter(User.id.in_(correct_user_responses.keys()))
                     for user in winning_users:
                         user.trivia_points += \
-                            self.trivia_max_response_time - correct_user_responses[user.id].time_to_answer
+                            (self.trivia_max_response_time - correct_user_responses[user.id].time_to_answer) \
+                            * self.score_multiplier
 
             except DBAPIError as dp_api_err:
                 logging.error(dp_api_err)
@@ -37,3 +39,6 @@ class TriviaDBObserver(Observer):
                 logging.error(sql_err)
             except IndexError as index_err:
                 logging.error(index_err)
+
+    async def on_abort(self, subject: TriviaBot) -> None:
+        pass

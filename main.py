@@ -1,7 +1,6 @@
 import configparser
 import logging.config
 from src.bot.bot import bot
-
 config = configparser.ConfigParser()
 config.read('config.ini')
 

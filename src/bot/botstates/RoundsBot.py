@@ -1,5 +1,4 @@
 import argparse
-import sys
 import logging
 from twitchio import Message
 from src.bot.RoundsQueue import RoundsQueue, Round

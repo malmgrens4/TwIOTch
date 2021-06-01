@@ -28,3 +28,4 @@ class TestNumberGameObservers:
 
         await winGameChatObserver.update(mock_subject)
         mock_subject.send_message.assert_called()
+

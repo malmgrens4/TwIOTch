@@ -30,3 +30,8 @@ class Subject(ABC):
         Notify all observers about an event.
         """
         pass
+
+    @property
+    @abstractmethod
+    def observers(self) -> None:
+        pass

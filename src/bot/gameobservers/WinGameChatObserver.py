@@ -43,6 +43,9 @@ class WinGameChatObserver(Observer):
             except Exception as err:
                 logging.error(err)
 
+    async def on_abort(self, subject: TeamGameHandler) -> None:
+        await subject.send_message("No Contest! Game ended early.")
+
     @staticmethod
     def format_winner_list(winning_ids: [str]):
         if len(winning_ids) == 1:

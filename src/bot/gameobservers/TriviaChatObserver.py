@@ -20,3 +20,7 @@ class TriviaChatObserver(Observer):
 
         if subject.won:
             await subject.send_message("Correct answers: %s" % ", ".join(subject.correct_options))
+
+    async def on_abort(self, subject: TriviaBot) -> None:
+        if not subject.won:
+            await subject.send_message("Game ended early. Correct answers: %s" % ", ".join(subject.correct_options))

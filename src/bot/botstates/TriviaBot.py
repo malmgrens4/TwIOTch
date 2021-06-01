@@ -18,7 +18,6 @@ class TriviaResponse:
 
 
 class TriviaBot(TeamGameHandler, BotState, Subject):
-
     def __init__(self, team_data: TeamData, question: str,
                  options: Dict[str, str], correct_options: [str], send_message: Callable[[str], None]):
 
@@ -26,7 +25,7 @@ class TriviaBot(TeamGameHandler, BotState, Subject):
         self.question = question
         self.options = options
         self.correct_options = correct_options
-        self.observers = []
+        self._observers = []
         self.won = False
         self.winning_team_ids = []
         self.team_data = team_data
@@ -39,14 +38,18 @@ class TriviaBot(TeamGameHandler, BotState, Subject):
         """
         self.team_responses: [Dict[int, TriviaResponse]] = None
 
+    @property
+    def observers(self) -> None:
+        return self._observers
+
     def attach(self, observer: Observer) -> None:
-        self.observers.append(observer)
+        self._observers.append(observer)
 
     def detach(self, observer: Observer) -> None:
-        self.observers.remove(observer)
+        self._observers.remove(observer)
 
     async def notify(self) -> None:
-        for observer in self.observers:
+        for observer in self._observers:
             await observer.update(self)
 
     async def game_start(self):
@@ -64,7 +67,8 @@ class TriviaBot(TeamGameHandler, BotState, Subject):
 
         team_id = self.team_data.teams.get(msg.author.id)
         if team_id is None:
-            return
+            await self.team_data.handle_join(msg)
+            team_id = self.team_data.teams.get(msg.author.id)
 
         if msg.author.id in self.team_responses[team_id]:
             return
@@ -117,4 +121,4 @@ class TriviaBot(TeamGameHandler, BotState, Subject):
         await self.notify()
 
     async def can_join(self, msg: Message) -> bool:
-        return await super().can_join(msg)
+        return not self.won

@@ -2,24 +2,21 @@ import os
 import logging
 from asyncio import sleep
 from twitchio.ext import commands
-
-from src.bot.RoundsQueue import RoundsQueue
+from src.bot.RoundsQueue import rounds_queue
 from src.bot.botstates.DefaultBot import DefaultBot
 from src.blueteeth.toolbox.toolbox import get_phuelight
 from src.bot.botstates.Context import Context as BotStateContext
 from twitchio.dataclasses import Message
-
 from src.bot.botstates.RoundsBot import RoundsBot
 from src.bot.commandhandlers.utils import parse_args
 from src.bot.db.schema import session_scope, User, Team
 from src.bot.TeamData import TeamData
-from src.bot.commandhandlers import trivia, number_game, battle_car
+from src.bot.commandhandlers import trivia, number_game, battle_car, admin
 # we need a game context with
 # teams (all twitch chat members that opt in)
 botState = BotStateContext(DefaultBot())
 
 team_data = TeamData(2)
-rounds_queue = RoundsQueue(time_between_rounds=20)
 
 bot = commands.Bot(
     # set up the bot
@@ -56,9 +53,13 @@ async def event_ready():
     await ws.send_privmsg(os.environ['CHANNEL'], f"/me has arrived.")
 
 
+@bot.command(name='cancel')
+async def cancel(msg: Message):
+    await admin.cancel(msg.channel.send, botState)
+    botState.transition_to(DefaultBot())
+
 @bot.command(name='rounds')
 async def rounds(msg: Message):
-    global rounds_queue
     rounds_queue.clear()
     args = parse_args(msg, ['time_between_rounds'])
     time_between_rounds = 30
@@ -66,7 +67,7 @@ async def rounds(msg: Message):
     if args['time_between_rounds']:
         time_between_rounds = int(args['time_between_rounds'])
 
-    rounds_queue = RoundsQueue(time_between_rounds=time_between_rounds)
+    rounds_queue = rounds_queue.set_time_between_rounds(time_between_rounds)
     botState.transition_to(RoundsBot(rounds_queue=rounds_queue, team_data=team_data))
 
 

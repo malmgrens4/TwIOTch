@@ -24,6 +24,8 @@ class BalloonBoxTeamObserver(Observer):
                 logging.debug("Team 1 win. Inflating right balloon.")
                 self.balloon_box.right_pump(2500)
 
+    async def on_abort(self, subject: TeamGameHandler) -> None:
+        pass
 
 
 
