@@ -27,6 +27,7 @@ bot = commands.Bot(
     initial_channels=[os.environ['CHANNEL']]
 )
 
+rounds_queue = rounds_queue
 
 @bot.event
 async def event_message(ctx: Message):
@@ -58,8 +59,10 @@ async def cancel(msg: Message):
     await admin.cancel(msg.channel.send, botState)
     botState.transition_to(DefaultBot())
 
+
 @bot.command(name='rounds')
 async def rounds(msg: Message):
+    global rounds_queue
     rounds_queue.clear()
     args = parse_args(msg, ['time_between_rounds'])
     time_between_rounds = 30
