@@ -11,20 +11,15 @@ class Round:
 
 
 class RoundsQueue:
-    def __init__(self, time_between_rounds: int = 5, rounds: [Round] = []):
+    def __init__(self, new_time_between_rounds: int = 5, rounds: [Round] = []):
         self.current_round = None
         self.rounds = rounds
-        self._time_between_rounds = time_between_rounds
+        self.time_between_rounds = new_time_between_rounds
 
-    @property
-    def time_between_rounds(self):
-        return self._time_between_rounds
-
-    @time_between_rounds.setter
-    def set_time_between_rounds(self, time_between_rounds: int):
-        if time_between_rounds < 1:
-            time_between_rounds = 1
-        self._time_between_rounds = time_between_rounds
+    def set_time_between_rounds(self, new_time_between_rounds: int):
+        if new_time_between_rounds < 1:
+            new_time_between_rounds = 1
+        self.time_between_rounds = new_time_between_rounds
 
     def add_round(self, new_round: Round):
         self.rounds.append(new_round)
@@ -51,4 +46,3 @@ class RoundsQueue:
             await self.current_round.on_round_start()
 
 
-rounds_queue = RoundsQueue(time_between_rounds=20)

@@ -5,7 +5,6 @@ from src.bot.gameobservers.Observer import Observer
 from src.bot.botstates.TriviaBot import TriviaBot
 from src.bot.gameobservers.utils import create_trivia_display
 from typing import Dict
-from src.bot.RoundsQueue import rounds_queue
 
 
 class TriviaFileDisplayObserver(Observer):
@@ -19,6 +18,8 @@ class TriviaFileDisplayObserver(Observer):
         self.display_on = False
 
     async def update(self, subject: TriviaBot) -> None:
+        from src.bot.bot import rounds_queue
+
         """Toggle all trivia displays to sync with game."""
         if not self.display_on and subject.game_started:
             self.display_on = True

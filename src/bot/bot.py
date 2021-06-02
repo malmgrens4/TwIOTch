@@ -2,7 +2,7 @@ import os
 import logging
 from asyncio import sleep
 from twitchio.ext import commands
-from src.bot.RoundsQueue import rounds_queue
+from src.bot.RoundsQueue import RoundsQueue
 from src.bot.botstates.DefaultBot import DefaultBot
 from src.blueteeth.toolbox.toolbox import get_phuelight
 from src.bot.botstates.Context import Context as BotStateContext
@@ -17,6 +17,7 @@ from src.bot.commandhandlers import trivia, number_game, battle_car, admin
 botState = BotStateContext(DefaultBot())
 
 team_data = TeamData(2)
+rounds_queue = RoundsQueue(new_time_between_rounds=20)
 
 bot = commands.Bot(
     # set up the bot
@@ -28,6 +29,7 @@ bot = commands.Bot(
 )
 
 rounds_queue = rounds_queue
+
 
 @bot.event
 async def event_message(ctx: Message):
@@ -70,7 +72,7 @@ async def rounds(msg: Message):
     if args['time_between_rounds']:
         time_between_rounds = int(args['time_between_rounds'])
 
-    rounds_queue = rounds_queue.set_time_between_rounds(time_between_rounds)
+    rounds_queue.set_time_between_rounds(time_between_rounds)
     botState.transition_to(RoundsBot(rounds_queue=rounds_queue, team_data=team_data))
 
 
